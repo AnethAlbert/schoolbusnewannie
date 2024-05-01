@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "120330211533",
+    "project_id": "newfishapp-6d870",
+    "storage_bucket": "newfishapp-6d870.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:120330211533:android:d9325d010d41813d7c9984",
+        "android_client_info": {
+          "package_name": "com.example.newschoolbusapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "120330211533-ph0320jh6d2l7lf2pbhjo0jb6f0hh563.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjkgLdPssrlt3uPT9VRvwABGn3-CwCZio"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "120330211533-ph0320jh6d2l7lf2pbhjo0jb6f0hh563.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
