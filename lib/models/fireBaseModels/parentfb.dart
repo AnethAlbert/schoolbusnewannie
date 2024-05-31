@@ -10,6 +10,8 @@ class ParentFB {
   final String? profilepicture;
   final String? password;
   final DateTime? timestamp;
+  double latitude;
+  double longitude;
 
   ParentFB({
     this.firebaseId,
@@ -21,6 +23,8 @@ class ParentFB {
     this.profilepicture,
     this.password,
     this.timestamp,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory ParentFB.fromJson(Map<String, dynamic> json) {
@@ -34,8 +38,11 @@ class ParentFB {
       profilepicture: json['profilepicture'] as String?,
       password: json['password'] as String?,
       timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp'] as String) : null,
+      latitude: json['latitude'] as double? ?? 0.0,// Add latitude here
+      longitude: json['longitude'] as double? ?? 0.0, // Add longitude here
     );
   }
+
 
   Map<String, dynamic> toJson() {
     return {
@@ -48,6 +55,8 @@ class ParentFB {
       'profilepicture': profilepicture,
       'password': password,
        'timestamp': timestamp,
+      'latitude': latitude,
+      'longitude': longitude,
     };
   }
 
@@ -63,6 +72,8 @@ class ParentFB {
       email: data['email'],
       phone: data['phone'],
       profilepicture: data['profilepicture'],
+      latitude: data['latitude'] as double? ?? 0.0, // Add default value here
+      longitude: data['longitude'] as double? ?? 0.0,
     );
   }
 
@@ -88,6 +99,8 @@ class ParentFB {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       profilepicture: profilepicture ?? this.profilepicture,
+      latitude: latitude,
+      longitude: longitude,
      // timestamp: timestamp ?? this.timestamp,
     );
   }

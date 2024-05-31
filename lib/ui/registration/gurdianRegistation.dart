@@ -64,6 +64,12 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
   String _uniqueNumber = '';
 
   @override
+  void initState() {
+    super.initState();
+    generateUniqueNumber(); // Generate unique number when page is loaded
+  }
+
+  @override
   void dispose() {
     super.dispose();
     _emailController.dispose();
@@ -361,7 +367,7 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
                 },
                 readOnly: true,
                 onTap: () {
-                  generateUniqueNumber(); // Generate unique number
+                  // generateUniqueNumber(); // Generate unique number
                   // Show a dialog box when the text field is tapped
                   showDialog(
                     context: context,

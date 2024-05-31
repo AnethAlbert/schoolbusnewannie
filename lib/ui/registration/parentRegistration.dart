@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:newschoolbusapp/componets/utils/colors.dart';
@@ -50,6 +51,13 @@ class _ParentRegistrationClassState extends State<ParentRegistrationClass> {
 
   List<String> roles = ['Teacher', 'Head Teacher'];
   String? selectedIttem = 'Teacher';
+
+  Future<Position> _getCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    return position;
+  }
+
 
   @override
   void dispose() {
@@ -135,6 +143,7 @@ class _ParentRegistrationClassState extends State<ParentRegistrationClass> {
     setState(() {
       isLoading = true;
     });
+    Position position = await _getCurrentLocation();
 
     try {
       // Convert Uint8List to base64-encoded String
@@ -183,6 +192,8 @@ class _ParentRegistrationClassState extends State<ParentRegistrationClass> {
         phone: parent.phone!,
         profilepicture: parent.profilepicture!,
         timestamp: parent.timestamp!,
+        latitude: position.latitude,
+        longitude: position.longitude,
       );
       // Insert the GuardianFB object into Firestore with user.uid as document ID
       await FirebaseFirestore.instance

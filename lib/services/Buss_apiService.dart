@@ -14,7 +14,8 @@ class ApiService {
   // final String url = "http://172.20.10.8:8080";
   //final String url = "http://192.168.100.209:8080";
   // final String url = "http://192.168.100.219:8080";
-  final String url = "http://192.168.37.55:8080";
+  final String url = "http://192.168.135.55:8080";
+ // final String url = "http://192.168.37.55:8080";
   //final String url = "http://192.168.98.168:8080";
   //final String url = "http://192.168.103.168:8080";
   // final String url = "http://192.168.1.79:8080";
@@ -63,7 +64,6 @@ class ApiService {
   }
 
 ////*****************************GET***************************************
-
   Future<List<Bus>> getAllBuses() async {
 
     try {

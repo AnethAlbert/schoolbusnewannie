@@ -17,7 +17,8 @@ class StudentApiService {
  //  final String url = "http://172.20.10.8:8080";
  // final String url = "http://192.168.100.209:8080";
  //  final String url = "http://192.168.100.219:8080";
-  final String url = "http://192.168.37.55:8080";
+  //final String url = "http://192.168.37.55:8080";
+  final String url = "http://192.168.135.55:8080";
 
   final String apiUrl = "/api/v1/StudentProfile";
    final String apiRelation = "/api/v1/psr";

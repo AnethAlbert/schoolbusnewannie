@@ -53,6 +53,7 @@ class _FingerPrintAlertDialogButtonState
                 return Container(
                   child: ProfilePicDialogBox(
                     fingerPrintId: fingerPrintId!,
+                    // fingerPrintId: "11",
                     tripRecordId: widget.realTripID!,
                   ),
                 );
@@ -66,7 +67,7 @@ class _FingerPrintAlertDialogButtonState
         child: Text(
           isLoading
               ? "Loading..."
-              : "Click to Add FingerPrint Device is Active ! Has:trpId :${widget.realTripID} ",
+              : "Click to Add FingerPrint, Device is Active ! Has:trpId :${widget.realTripID} ",
           style: TextStyle(
             color: isLoading ? Colors.grey : Colors.blue,
           ),
