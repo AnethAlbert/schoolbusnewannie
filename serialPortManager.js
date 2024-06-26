@@ -1,5 +1,5 @@
 const { SerialPort } = require('serialport');
-const port = new SerialPort({ path: 'COM4', baudRate: 9600 });
+const port = new SerialPort({ path: 'COM9', baudRate: 9600 });
 
 // Define the serial port you are using (replace 'COM5' with your actual port)
 //const port = new SerialPort({ path: 'COM5', baudRate: 9600 });

@@ -1,34 +1,28 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+// import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:newschoolbusapp/services/Gurdian_apiService.dart';
-import 'package:http/http.dart' as http;
-
-import 'package:newschoolbusapp/utils/app_colors.dart';
-import 'package:newschoolbusapp/widgets/MyclipPath.dart';
-import 'package:newschoolbusapp/widgets/cupartinoButton.dart';
-import 'package:newschoolbusapp/widgets/green_intro_widget.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as Path;
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import '../../core/models/gurdian.dart';
+import '../../core/services/Gurdian_apiService.dart';
+import '../../core/utils/app_colors.dart';
 
-import '../../models/gurdian.dart';
-
-class MyProfileGurdian extends StatefulWidget {
-  const MyProfileGurdian({Key? key}) : super(key: key);
+class MyProfileGuardian extends StatefulWidget {
+  const MyProfileGuardian({Key? key}) : super(key: key);
 
   @override
-  State<MyProfileGurdian> createState() => _MyProfileGurdianState();
+  State<MyProfileGuardian> createState() => _MyProfileGuardianState();
 }
 
-class _MyProfileGurdianState extends State<MyProfileGurdian> {
+class _MyProfileGuardianState extends State<MyProfileGuardian> {
   TextEditingController nameController = TextEditingController();
   TextEditingController homeController = TextEditingController();
   TextEditingController businessController = TextEditingController();
@@ -135,11 +129,11 @@ class _MyProfileGurdianState extends State<MyProfileGurdian> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Theme.Colors.loginGradientStart,
-              Theme.Colors.loginGradientEnd,
+              AppColors.linearMiddle,
+              AppColors.linearMiddle,
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -155,11 +149,11 @@ class _MyProfileGurdianState extends State<MyProfileGurdian> {
                 child: Container(
                   // height: Get.height * 0.4,
                   height: 210,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Theme.Colors.loginGradientStart,
-                        Theme.Colors.loginGradientEnd,
+                        AppColors.linearTop,
+                        AppColors.linearMiddle,
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -168,11 +162,17 @@ class _MyProfileGurdianState extends State<MyProfileGurdian> {
                   child: Stack(
                     children: [
                       //greenIntroWidgetWithoutLogos(title: 'My Profile'),
-                      Align(
+                      const Align(
                         alignment: Alignment.topCenter,
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text("My Profile"),
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(
+                            "My Profile",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
                         ),
                       ),
 
@@ -447,23 +447,23 @@ class _MyProfileGurdianState extends State<MyProfileGurdian> {
                       const SizedBox(
                         height: 10,
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFFFFEB3B),
-                          // Set the desired color here
-                          borderRadius: BorderRadius.circular(
-                              8), // Adjust the border radius as needed
-                        ),
-                        child: CupertinoButton(
-                          child: Text(
-                            "Cancel",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          onPressed: () {
-                             Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     color: Color(0xFFFFEB3B),
+                      //     // Set the desired color here
+                      //     borderRadius: BorderRadius.circular(
+                      //         8), // Adjust the border radius as needed
+                      //   ),
+                      //   child: CupertinoButton(
+                      //     child: Text(
+                      //       "Cancel",
+                      //       style: TextStyle(color: Colors.black),
+                      //     ),
+                      //     onPressed: () {
+                      //       Navigator.of(context).pop();
+                      //     },
+                      //   ),
+                      // ),
                       const SizedBox(
                         height: 30,
                       ),
@@ -487,14 +487,14 @@ TextFieldWidget(String title, IconData iconData,
     children: [
       Text(
         title,
-        style: GoogleFonts.poppins(
+        style: TextStyle(
             fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
       ),
       const SizedBox(
         height: 6,
       ),
       Container(
-        width: Get.width,
+        width: 300,
         // height: 50,
         decoration: BoxDecoration(
             color: Colors.white,
@@ -510,7 +510,7 @@ TextFieldWidget(String title, IconData iconData,
           onTap: () => onTap!(),
           validator: (input) => validator(input),
           controller: controller,
-          style: GoogleFonts.poppins(
+          style: TextStyle(
               fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black),
           decoration: InputDecoration(
             prefixIcon: Padding(
@@ -537,7 +537,7 @@ Widget greenButton(String title, Function onPressed) {
     onPressed: () => onPressed(),
     child: Text(
       title,
-      style: GoogleFonts.poppins(
+      style: TextStyle(
           fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
     ),
   );

@@ -1,15 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:newschoolbusapp/services/fingerPrint_ApiService.dart';
-import 'package:newschoolbusapp/widgets/profilePictDialogBox.dart';
+import 'package:newschoolbusapp/core/utils/app_colors.dart';
+
+// import 'package:google_fonts/google_fonts.dart';
 import 'package:newschoolbusapp/widgets/profiliPictureDialogBoxStudent.dart';
-import 'package:newschoolbusapp/style/theme.dart' as Theme;
+
+import '../core/services/fingerPrint_ApiService.dart';
 
 class FingerPrintAlertDialogButtonStudent extends StatefulWidget {
   final int? realTripID;
 
-  const FingerPrintAlertDialogButtonStudent({Key? key, this.realTripID})
-      : super(key: key);
+  const FingerPrintAlertDialogButtonStudent({super.key, this.realTripID});
 
   @override
   _FingerPrintAlertDialogButtonStudentState createState() =>
@@ -25,39 +26,41 @@ class _FingerPrintAlertDialogButtonStudentState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  // Theme.Colors.loginGradientStart,
-                  Colors.blueAccent,
-                  Colors.blueAccent,
-                 Colors.black
-                 // Theme.Colors.loginGradientEnd,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                gradient: const LinearGradient(
+                  colors: [
+                    AppColors.linearTop,
+                    AppColors.linearBottom,
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
               ),
-            ),
-           // color: Colors.black,
-            child: GestureDetector(
-              onTap: isLoading ? null : _handleButtonTap,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    isLoading
-                        ? "Waiting..."
-                        : "Click to Add FingerPrint , Device is Active ! Has:trpId :${widget.realTripID} ",
-                    style: GoogleFonts.openSans( // Example font, replace with your desired Google Font
-                      fontSize: 20,
-                      color: isLoading ? Colors.white : Colors.white,
-                    //  decoration: isLoading ? null : TextDecoration.underline,
+              // color: Colors.black,
+              child: GestureDetector(
+                onTap: isLoading ? null : _handleButtonTap,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text(
+                        isLoading
+                            ? "Waiting..."
+                            : "Click to Add FingerPrint. Device is Active.",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -75,23 +78,34 @@ class _FingerPrintAlertDialogButtonStudentState
     });
 
     try {
-      fingerPrintId = await FingerPrintApiService.getFingerprintID();
+      fingerPrintId = await FingerPrintApiService().getFingerprintID();
 
       if (fingerPrintId != null) {
-        print('Fingerprint Student ID: $fingerPrintId');
+        if (kDebugMode) {
+          print('Fingerprint Student ID: $fingerPrintId');
+        }
+        if (!mounted) {
+          return;
+        }
+        Navigator.pop(context);
         showDialog(
           context: context,
           builder: (BuildContext context) => ProfilePicDialogBoxStudent(
             fingerPrintId: fingerPrintId!,
             tripRecordId: widget.realTripID!,
+            action: "add",
           ),
         );
       } else {
-        print('Failed to retrieve fingerprint ID');
+        if (kDebugMode) {
+          print('Failed to retrieve fingerprint ID');
+        }
         // Handle the case where the fingerprint ID couldn't be retrieved
       }
     } catch (error) {
-      print('Error retrieving fingerprint ID: $error');
+      if (kDebugMode) {
+        print('Error retrieving fingerprint ID: $error');
+      }
       // Handle error appropriately, e.g., show a snackbar
     } finally {
       setState(() {
@@ -100,12 +114,6 @@ class _FingerPrintAlertDialogButtonStudentState
     }
   }
 }
-
-
-
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:schoolbassapp/services/fingerPrint_ApiService.dart';

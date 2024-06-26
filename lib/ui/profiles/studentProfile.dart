@@ -1,19 +1,16 @@
 import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:newschoolbusapp/ui/profiles/studentProfile2.dart';
-
-import 'package:newschoolbusapp/utils/app_colors.dart';
-import 'package:newschoolbusapp/widgets/MyclipPath.dart';
-import 'package:newschoolbusapp/widgets/cupartinoButton.dart';
-import 'package:newschoolbusapp/widgets/green_intro_widget.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as Path;
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
+import 'package:newschoolbusapp/ui/profiles/studentProfile2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../core/utils/app_colors.dart';
 
 class MyProfileStudent extends StatefulWidget {
   const MyProfileStudent({Key? key}) : super(key: key);
@@ -33,7 +30,7 @@ class _MyProfileStudentState extends State<MyProfileStudent> {
 
   Future<Map<String, String>> getUserInfoFromSharedPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-   // final token = prefs.getString('token') ?? '';
+    // final token = prefs.getString('token') ?? '';
     final id = prefs.getString('id') ?? '';
     final fname = prefs.getString('fname') ?? '';
     final lname = prefs.getString('lname') ?? '';
@@ -41,7 +38,6 @@ class _MyProfileStudentState extends State<MyProfileStudent> {
     final phone = prefs.getString('phone') ?? '';
     final profilepicture = prefs.getString('profilepicture') ?? '';
     final digitalfingerprint = prefs.getString('digitalfingerprint') ?? '';
-
 
     return {
       'id': id,
@@ -124,17 +120,21 @@ class _MyProfileStudentState extends State<MyProfileStudent> {
                         child: FutureBuilder<Map<String, String>>(
                           future: getUserInfoFromSharedPreferences(),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
                               return CircularProgressIndicator();
                             } else if (snapshot.hasError) {
                               return Text('Error: ${snapshot.error}');
                             } else {
-                              String firstName = snapshot.data!['fname'] ?? 'Unknown';
+                              String firstName =
+                                  snapshot.data!['fname'] ?? 'Unknown';
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
                                   firstName,
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               );
                             }
@@ -356,7 +356,8 @@ class _MyProfileStudentState extends State<MyProfileStudent> {
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (context) => MyProfileStudent2(),
+                                                builder: (context) =>
+                                                    MyProfileStudent2(),
                                               ),
                                             );
                                             print("Profile");
@@ -392,7 +393,7 @@ TextFieldWidget(String title, IconData iconData,
     children: [
       Text(
         title,
-        style: GoogleFonts.poppins(
+        style: TextStyle(
             fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
       ),
       const SizedBox(
@@ -415,7 +416,7 @@ TextFieldWidget(String title, IconData iconData,
           onTap: () => onTap!(),
           validator: (input) => validator(input),
           controller: controller,
-          style: GoogleFonts.poppins(
+          style: TextStyle(
               fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black),
           decoration: InputDecoration(
             prefixIcon: Padding(
@@ -442,7 +443,7 @@ Widget greenButton(String title, Function onPressed) {
     onPressed: () => onPressed(),
     child: Text(
       title,
-      style: GoogleFonts.poppins(
+      style: TextStyle(
           fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
     ),
   );

@@ -1,17 +1,14 @@
 import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-import 'package:newschoolbusapp/utils/app_colors.dart';
-import 'package:newschoolbusapp/widgets/MyclipPath.dart';
-import 'package:newschoolbusapp/widgets/cupartinoButton.dart';
-import 'package:newschoolbusapp/widgets/green_intro_widget.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as Path;
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
+
+import '../../core/utils/app_colors.dart';
 
 class MyProfileStudent2 extends StatefulWidget {
   const MyProfileStudent2({Key? key}) : super(key: key);
@@ -58,7 +55,6 @@ class _MyProfileStudent2State extends State<MyProfileStudent2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -77,8 +73,6 @@ class _MyProfileStudent2State extends State<MyProfileStudent2> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-
               ClipPath(
                 // clipper: MyClipper(),
                 child: Container(
@@ -108,7 +102,9 @@ class _MyProfileStudent2State extends State<MyProfileStudent2> {
                         alignment: Alignment.topCenter,
                         child: Column(
                           children: [
-                            SizedBox(height: 50,),
+                            SizedBox(
+                              height: 50,
+                            ),
                             InkWell(
                               onTap: () {
                                 getImage(ImageSource.camera);
@@ -152,7 +148,7 @@ class _MyProfileStudent2State extends State<MyProfileStudent2> {
                         'Name',
                         Icons.person_outlined,
                         nameController,
-                            (String? input) {
+                        (String? input) {
                           if (input!.isEmpty) {
                             return 'Name is required!';
                           }
@@ -169,7 +165,7 @@ class _MyProfileStudent2State extends State<MyProfileStudent2> {
                         'Email',
                         Icons.home_outlined,
                         homeController,
-                            (String? input) {
+                        (String? input) {
                           if (input!.isEmpty) {
                             return 'Home Address is required!';
                           }
@@ -187,7 +183,7 @@ class _MyProfileStudent2State extends State<MyProfileStudent2> {
                         'phone +',
                         Icons.card_travel,
                         businessController,
-                            (String? input) {
+                        (String? input) {
                           if (input!.isEmpty) {
                             return 'Business Address is required!';
                           }
@@ -205,7 +201,7 @@ class _MyProfileStudent2State extends State<MyProfileStudent2> {
                         'role',
                         Icons.account_circle_outlined,
                         shopController,
-                            (String? input) {
+                        (String? input) {
                           if (input!.isEmpty) {
                             return 'Shopping Center is required!';
                           }
@@ -218,21 +214,24 @@ class _MyProfileStudent2State extends State<MyProfileStudent2> {
                       ),
                       const SizedBox(
                         height: 10,
-                      ),Container(
+                      ),
+                      Container(
                         decoration: BoxDecoration(
-                          color: Color(0xFFFFEB3B), // Set the desired color here
-                          borderRadius: BorderRadius.circular(8), // Adjust the border radius as needed
+                          color:
+                              Color(0xFFFFEB3B), // Set the desired color here
+                          borderRadius: BorderRadius.circular(
+                              8), // Adjust the border radius as needed
                         ),
                         child: CupertinoButton(
-                          child: Text("Cancel",style: TextStyle(
-                              color: Colors.black
-                          ),),
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(color: Colors.black),
+                          ),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
                       ),
-
                       const SizedBox(
                         height: 30,
                       ),
@@ -256,10 +255,8 @@ TextFieldWidget(String title, IconData iconData,
     children: [
       Text(
         title,
-        style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.white),
+        style: TextStyle(
+            fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
       ),
       const SizedBox(
         height: 6,
@@ -281,10 +278,8 @@ TextFieldWidget(String title, IconData iconData,
           onTap: () => onTap!(),
           validator: (input) => validator(input),
           controller: controller,
-          style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.black),
+          style: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black),
           decoration: InputDecoration(
             prefixIcon: Padding(
               padding: const EdgeInsets.only(left: 10),
@@ -310,7 +305,7 @@ Widget greenButton(String title, Function onPressed) {
     onPressed: () => onPressed(),
     child: Text(
       title,
-      style: GoogleFonts.poppins(
+      style: TextStyle(
           fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
     ),
   );

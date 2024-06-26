@@ -1,5 +1,3 @@
-
-
 ///****************************************** THIS WORK FINE ********************************************************** */
 
 const getSerialPort = require('../serialPortManager');
@@ -51,8 +49,8 @@ function sendCommandDetectFingerprint(command) {
 
                 // Reject the promise with a timeout error
                 reject(new Error('Fingerprint detection timeout'));
-                 // Remove the event listener once fingerprint is detected
-               
+                // Remove the event listener once fingerprint is detected
+
             }
         }, 5000); // Adjust the timeout duration as needed
     });
@@ -64,7 +62,8 @@ function sendCommandDetectFingerprint(command) {
 async function sendCommandEnrollFingerprint(command, fingerPrintId) {
     // Send command to Arduino for fingerprint enrollment
     port.write(command);
-  
+    console.log('Trying to enrol fingerprint with ID:', fingerPrintId);
+
     return new Promise((resolve, reject) => {
         let receivedData = '';
         let fingerprintIDReceived = false;
@@ -90,7 +89,7 @@ async function sendCommandEnrollFingerprint(command, fingerPrintId) {
                 // Resolve the promise with enrollment status
                 resolve(enrollmentSuccessful);
             }
-            
+
             // Check if the received data contains the fingerprint ID
             const idMatch = receivedData.match(/ID (\d+)/);
             if (idMatch && !fingerprintIDReceived) {
@@ -117,7 +116,6 @@ async function sendCommandEnrollFingerprint(command, fingerPrintId) {
         port.write(fingerPrintId);
         console.log(fingerPrintId);
 
-   
     });
 }
 
@@ -134,11 +132,11 @@ function sendId(fingerPrintId) {
 ///**********END OF ENROLL FINGERPRINT METHOD */**************************************************** */
 
 
-  
+
 async function sendCommandDeleteFingerprint(command, fingerPrintId) {
     // Send command to Arduino for fingerprint enrollment
     port.write(command);
-  
+
     return new Promise((resolve, reject) => {
         let receivedData = '';
         let fingerprintIDReceived = false;
@@ -164,7 +162,7 @@ async function sendCommandDeleteFingerprint(command, fingerPrintId) {
                 // Resolve the promise with enrollment status
                 resolve(DeleteSuccessful);
             }
-            
+
             // Check if the received data contains the fingerprint ID
             const idMatch = receivedData.match(/ID (\d+)/);
             if (idMatch && !fingerprintIDReceived) {
@@ -202,9 +200,9 @@ function sendId(fingerPrintId) {
     port.write(fingerPrintId);
 }
 
-  
 
- ///**********END OF DELETE FINGERPRINT METHOD */**************************************************** */
+
+///**********END OF DELETE FINGERPRINT METHOD */**************************************************** */
 
 function sendCommandEmptyFingerprint(command) {
     // Implement the logic to send the fingerprint ID to Arduino
