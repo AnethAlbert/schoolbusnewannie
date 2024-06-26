@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:newschoolbusapp/services/fingerPrint_ApiService.dart';
 import 'package:newschoolbusapp/widgets/profilePictDialogBox.dart';
+
+import '../core/services/fingerPrint_ApiService.dart';
 
 class FingerPrintAlertDialogButton extends StatefulWidget {
   final int? realTripID;
@@ -27,7 +28,7 @@ class _FingerPrintAlertDialogButtonState
 
         try {
           // Call the getFingerprintID method when the button is pressed
-          fingerPrintId = await FingerPrintApiService.getFingerprintID();
+          fingerPrintId = await FingerPrintApiService().getFingerprintID();
 
           // Handle the retrieved fingerprint ID as needed
           if (fingerPrintId != null) {
@@ -42,11 +43,13 @@ class _FingerPrintAlertDialogButtonState
           // Handle error appropriately, e.g., show a snackbar
         } finally {
           setState(() {
-            isLoading = false; // Set loading state to false when operation completes
+            isLoading =
+                false; // Set loading state to false when operation completes
           });
 
           // Show dialog only if fingerprint ID is retrieved successfully
           if (fingerPrintId != null) {
+            Navigator.pop(context);
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -71,13 +74,11 @@ class _FingerPrintAlertDialogButtonState
           style: TextStyle(
             color: isLoading ? Colors.grey : Colors.blue,
           ),
-
         ),
       ),
     );
   }
 }
-
 
 //
 // import 'package:flutter/material.dart';

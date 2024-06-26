@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:newschoolbusapp/componets/constants.dart';
 import 'package:newschoolbusapp/secrets.dart';
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:newschoolbusapp/ui/Report/WeekReport.dart';
 import 'package:newschoolbusapp/ui/Report/mouthReport.dart';
+
+import '../../presentation/componets/constants.dart';
 
 class BucketMap03 extends StatefulWidget {
   const BucketMap03({Key? key}) : super(key: key);
@@ -183,9 +184,8 @@ class _BucketMap03State extends State<BucketMap03> {
                               ),
                             ),
 
-
                             Padding(
-                              padding: EdgeInsets.only(left: 25.0,top: 3.0),
+                              padding: EdgeInsets.only(left: 25.0, top: 3.0),
                               child: Container(
                                 width: 2, // Adjust the width of the line
                                 height: 40,
@@ -194,7 +194,7 @@ class _BucketMap03State extends State<BucketMap03> {
                                 ),
                               ),
                             ),
-                          //  SizedBox(height: 20.0),
+                            //  SizedBox(height: 20.0),
 
                             Container(
                               width: 340,
@@ -245,7 +245,7 @@ class _BucketMap03State extends State<BucketMap03> {
                             ),
 
                             Padding(
-                              padding: EdgeInsets.only(left: 25.0,top: 3.0),
+                              padding: EdgeInsets.only(left: 25.0, top: 3.0),
                               child: Container(
                                 width: 2, // Adjust the width of the line
                                 height: 40,
@@ -303,7 +303,7 @@ class _BucketMap03State extends State<BucketMap03> {
                             ),
 
                             Padding(
-                              padding: EdgeInsets.only(left: 25.0,top: 3.0),
+                              padding: EdgeInsets.only(left: 25.0, top: 3.0),
                               child: Container(
                                 width: 2, // Adjust the width of the line
                                 height: 40,
@@ -364,7 +364,7 @@ class _BucketMap03State extends State<BucketMap03> {
                             ),
 
                             Padding(
-                              padding: EdgeInsets.only(left: 25.0,top: 3.0),
+                              padding: EdgeInsets.only(left: 25.0, top: 3.0),
                               child: Container(
                                 width: 2, // Adjust the width of the line
                                 height: 40,
@@ -447,7 +447,6 @@ class _BucketMap03State extends State<BucketMap03> {
             BottomNavigationBarItem(
               icon: Icon(Icons.contacts),
               label: 'Contact',
-
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
@@ -460,9 +459,10 @@ class _BucketMap03State extends State<BucketMap03> {
               // Assuming the 'Contact' item is at index 3
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => weekklyAttendacyClass()),
+                MaterialPageRoute(
+                    builder: (context) => weekklyAttendacyClass()),
               );
-            }else if (index ==2){
+            } else if (index == 2) {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => mouthReportClass()),

@@ -15,6 +15,7 @@ const psrRoute = require('./src/parent_student_relation/routes');
 const login_sessionRoute = require('./src/login_session/routes');
 const fingerprintRoutes = require('./srcFingerprint/routefingerprintRoutes');
 const studenttriplist = require('./src/student_trip_list/routes');
+const messageRoute = require('./src/message/routes');
 
 
 
@@ -58,6 +59,7 @@ app.use('/api/v1/psr', psrRoute);
 app.use('/api/v1/login_session', login_sessionRoute);
 app.use('/api/v1', fingerprintRoutes);
 app.use('/api/v1/studenttriplist', studenttriplist);
+app.use('/api/v1/message', messageRoute);
 
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (input) => {

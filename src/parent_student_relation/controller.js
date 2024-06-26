@@ -53,30 +53,28 @@ const getpsrByparent_id = (req, res) => {
 
 
 
-// // Remove student by id
-// const removeclassById = (req, res) => {
-//   const id = parseInt(req.params.id);
-//   pool.query(queries.getClassById, [id], (error, results) => {
-//     if (error) {
-//       console.error(error);
-//       res.status(500).json({ error: 'Internal server error' });
-//       return;
-//     }
-//     if (!results.length) {
-//       res.status(404).json({ error: 'class not found' });
-//       return;
-//     }
-//     pool.query(queries.removeClassById, [id], (error, results) => {
-//       if (error) {
-//         console.error(error);
-//         res.status(500).json({ error: 'Internal server error' });
-//         return;
-//       }
-//       res.status(200).json({ message: 'class deleted successfully' });
-//       console.log(`class with id: ${id} deleted successfully`);
-//     });
-//   });
-// };
+// Remove parentStudentRelation by id
+const removeParentStudentRelationById = (req, res) => {
+  const parentId = parseInt(req.params.parent_id);
+  const studentId = parseInt(req.params.student_id);
+  
+    pool.query(queries.deleteParentStudentRelation, [parentId, studentId], (error, results) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({success: false, message: 'Internal server error' });
+        return;
+      }
+
+      if (results.affectedRows === 0) {
+        res.status(404).json({ success: false, message: 'relation not found' });
+        return;
+      }
+
+      res.status(200).json({success: true, message: 'relation deleted successfully' });
+      console.log(`Deleted record with parent_id: ${parentId} and student_id: ${studentId}`);
+
+    });
+};
 
 // // Update Gardian by id
 
@@ -128,7 +126,8 @@ const getpsrByparent_id = (req, res) => {
       module.exports = {
         addpsr, 
         // getallclass,
-        getpsrByparent_id
+        getpsrByparent_id,
+        removeParentStudentRelationById
         // removeclassById,
         // updateclassById
       };

@@ -2,8 +2,8 @@ import { SerialPort } from 'serialport';
 import readline from 'readline';
 import fetch from 'node-fetch'; // Import the node-fetch library to make HTTP requests
 
-// Define the serial port you are using (replace 'COM5' with your actual port)
-const serialPort = new SerialPort({ path: 'COM4', baudRate: 9600 });
+// Define the serial port you are using (replace 'COM5', 'COM4' with your actual port)
+const serialPort = new SerialPort({ path: 'COM9', baudRate: 9600 });
 
 let receivedData = ''; // Variable to accumulate received data
 

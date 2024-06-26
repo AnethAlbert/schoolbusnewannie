@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:location/location.dart';
-import 'package:newschoolbusapp/componets/constants.dart';
+
+import '../../presentation/componets/constants.dart';
 
 class MapPage extends StatefulWidget {
- // final int id;
+  // final int id;
   final String? fname;
-  final String?lname;
+  final String? lname;
   final int? classId;
   final String? digitalFingerprint;
   final String? firebaseId;
@@ -20,16 +21,16 @@ class MapPage extends StatefulWidget {
 
   const MapPage({
     Key? key,
-  //  required this.id,
-     this.fname,
-     this.lname,
-     this.classId,
-     this.digitalFingerprint,
-     this.firebaseId,
-     this.profilePicture,
-     this.registrationNumber,
-     this.stationId,
-     this.age,
+    //  required this.id,
+    this.fname,
+    this.lname,
+    this.classId,
+    this.digitalFingerprint,
+    this.firebaseId,
+    this.profilePicture,
+    this.registrationNumber,
+    this.stationId,
+    this.age,
   }) : super(key: key);
 
   @override
@@ -40,10 +41,10 @@ class _MapPageState extends State<MapPage> {
   Location _locationController = new Location();
 
   final Completer<GoogleMapController> _mapController =
-  Completer<GoogleMapController>();
+      Completer<GoogleMapController>();
 
   static const LatLng fezaNuserySchool = LatLng(-6.76329, 39.25631);
-  static const LatLng _kijiweni= LatLng(-6.7866, 39.2230);
+  static const LatLng _kijiweni = LatLng(-6.7866, 39.2230);
   LatLng? _currentP = null;
 
   Map<PolylineId, Polyline> polylines = {};
@@ -52,10 +53,10 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     super.initState();
     getLocationUpdates().then(
-          (_) => {
+      (_) => {
         getPolylinePoints().then((coordinates) => {
-          generatePolyLineFromPoints(coordinates),
-        }),
+              generatePolyLineFromPoints(coordinates),
+            }),
       },
     );
   }
@@ -65,32 +66,32 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       body: _currentP == null
           ? const Center(
-        child: Text("Loading..."),
-      )
+              child: Text("Loading..."),
+            )
           : GoogleMap(
-        onMapCreated: ((GoogleMapController controller) =>
-            _mapController.complete(controller)),
-        initialCameraPosition: CameraPosition(
-          target: fezaNuserySchool,
-          zoom: 11,
-        ),
-        markers: {
-          Marker(
-            markerId: MarkerId("_currentLocation"),
-            icon: BitmapDescriptor.defaultMarker,
-            position: _currentP!,
-          ),
-          Marker(
-              markerId: MarkerId("_sourceLocation"),
-              icon: BitmapDescriptor.defaultMarker,
-              position: fezaNuserySchool),
-          Marker(
-              markerId: MarkerId("_destionationLocation"),
-              icon: BitmapDescriptor.defaultMarker,
-              position: _kijiweni)
-        },
-        polylines: Set<Polyline>.of(polylines.values),
-      ),
+              onMapCreated: ((GoogleMapController controller) =>
+                  _mapController.complete(controller)),
+              initialCameraPosition: CameraPosition(
+                target: fezaNuserySchool,
+                zoom: 11,
+              ),
+              markers: {
+                Marker(
+                  markerId: MarkerId("_currentLocation"),
+                  icon: BitmapDescriptor.defaultMarker,
+                  position: _currentP!,
+                ),
+                Marker(
+                    markerId: MarkerId("_sourceLocation"),
+                    icon: BitmapDescriptor.defaultMarker,
+                    position: fezaNuserySchool),
+                Marker(
+                    markerId: MarkerId("_destionationLocation"),
+                    icon: BitmapDescriptor.defaultMarker,
+                    position: _kijiweni)
+              },
+              polylines: Set<Polyline>.of(polylines.values),
+            ),
     );
   }
 
@@ -124,10 +125,14 @@ class _MapPageState extends State<MapPage> {
       }
     }
 
-    _locationController.onLocationChanged.listen((LocationData currentLocation) {
-      if (currentLocation.latitude != null && currentLocation.longitude != null) {
-        LatLng newLocation = LatLng(currentLocation.latitude!, currentLocation.longitude!);
-        if (mounted) { // Check if the widget is still mounted
+    _locationController.onLocationChanged
+        .listen((LocationData currentLocation) {
+      if (currentLocation.latitude != null &&
+          currentLocation.longitude != null) {
+        LatLng newLocation =
+            LatLng(currentLocation.latitude!, currentLocation.longitude!);
+        if (mounted) {
+          // Check if the widget is still mounted
           setState(() {
             _currentP = newLocation;
             _cameraToPosition(_currentP!);
@@ -136,6 +141,7 @@ class _MapPageState extends State<MapPage> {
       }
     });
   }
+
   //
   // Future<void> getLocationUpdates() async {
   //   bool _serviceEnabled;

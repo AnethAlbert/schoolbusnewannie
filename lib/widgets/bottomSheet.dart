@@ -13,9 +13,9 @@ class CustomBottomSheet extends StatefulWidget {
   _CustomBottomSheetState createState() => _CustomBottomSheetState();
 
   static Future<T?> show<T>(
-      BuildContext context, {
-        required Widget content,
-      }) {
+    BuildContext context, {
+    required Widget content,
+  }) {
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true, // Extend to full screen
@@ -47,7 +47,7 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
           ),
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
                     Theme.Colors.loginGradientStart,

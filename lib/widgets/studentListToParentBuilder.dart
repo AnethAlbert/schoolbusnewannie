@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:newschoolbusapp/models/student.dart';
-import 'package:newschoolbusapp/services/firebaseservices/pSr_database_service.dart';
-import 'package:newschoolbusapp/models/fireBaseModels/studentfb.dart';
+
+import '../core/controllers/parent_student_relation_controller.dart';
+import '../core/models/fireBaseModels/studentfb.dart';
+import '../core/services/firebaseservices/pSr_database_service.dart';
 
 class StudentListBuilder extends StatefulWidget {
   final int parent_id;
@@ -18,15 +18,24 @@ class StudentListBuilder extends StatefulWidget {
 }
 
 class _StudentListBuilderState extends State<StudentListBuilder> {
+  late ParentStudentRelationController parentStudentRelationController;
+
+  @override
+  void initState() {
+    parentStudentRelationController = ParentStudentRelationController();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: StreamBuilder<List<StudentFB>>(
-        stream: pSrDatabaseService().getStudentsByParentId(widget.parent_id!),
+        stream: ParentStudentRelationFirebaseService()
+            .getStudentsByParentId(widget.parent_id!),
         // Use FirestoreService to get students
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
@@ -39,16 +48,15 @@ class _StudentListBuilderState extends State<StudentListBuilder> {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(6),
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
                         child: Container(
-                          height: 80,
-                          width: 420,
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.5),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -56,35 +64,46 @@ class _StudentListBuilderState extends State<StudentListBuilder> {
                                   child: student.profilepicture != null &&
                                           student.profilepicture!.isNotEmpty
                                       ? CircleAvatar(
-                                          radius: 30,
+                                          radius: 20,
                                           backgroundImage: MemoryImage(
                                               base64Decode(
                                                   student.profilepicture!)),
                                         )
-                                      : Text('No image selected'),
+                                      : const Text('No image selected'),
                                 ),
                               ),
                               // Display student profile picture here
-                              SizedBox(width: 50),
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "${student.fname} ${student.lname} (${student.mysqlId})",
-                                  ),
-                                  Text("Class 7"),
-                                  Text("Age ${student.age}"),
-                                ],
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "${student.fname} ${student.lname}",
+                                    ),
+                                    const Text(
+                                      "Class 7",
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                    Text(
+                                      "Age ${student.age}",
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ],
+                                ),
                               ),
                               Expanded(
                                 child: Container(
                                   alignment: Alignment.centerRight,
                                   child: IconButton(
-                                    icon: Icon(Icons.cancel),
+                                    icon: const Icon(Icons.cancel),
                                     onPressed: () {
-                                      // Add your onPressed function here
+                                      print("REMOVE RELATION");
+                                      parentStudentRelationController
+                                          .deleteRelation(widget.parent_id,
+                                              student.mysqlId ?? 0);
+                                      setState(() {});
                                     },
                                   ),
                                 ),
@@ -98,7 +117,7 @@ class _StudentListBuilderState extends State<StudentListBuilder> {
                 },
               );
             } else {
-              return Center(child: Text('No students found'));
+              return const Center(child: Text('No students found'));
             }
           }
         },

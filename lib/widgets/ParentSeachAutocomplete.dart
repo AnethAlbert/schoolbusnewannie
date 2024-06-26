@@ -1,23 +1,18 @@
-import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_flutter/icons_flutter.dart';
-import 'package:newschoolbusapp/models/fireBaseModels/parentfb.dart';
-import 'package:newschoolbusapp/models/pSr.dart';
-import 'package:newschoolbusapp/models/parent.dart';
-import 'package:newschoolbusapp/models/student.dart';
-import 'package:newschoolbusapp/services/Parent_apiService.dart';
-import 'package:newschoolbusapp/services/Student_apiService.dart';
-import 'package:newschoolbusapp/services/firebaseservices/parent_database_service.dart';
-import 'package:newschoolbusapp/services/pSr_apiService.dart';
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
-import 'package:newschoolbusapp/testing/profilepic.dart';
 import 'package:newschoolbusapp/widgets/AddparentStudentrelation.dart';
-import 'package:newschoolbusapp/widgets/bottomSheet.dart';
 import 'package:newschoolbusapp/widgets/parentCard.dart';
-import 'package:newschoolbusapp/widgets/parentListscreenFB.dart';
+
+import '../core/models/fireBaseModels/parentfb.dart';
+import '../core/models/parent.dart';
+import '../core/models/student.dart';
+import '../core/services/Parent_apiService.dart';
+import '../core/services/Student_apiService.dart';
+import '../core/services/firebaseservices/parent_database_service.dart';
+import '../core/services/pSr_apiService.dart';
+import '../core/utils/app_colors.dart';
 
 class autocomplete extends StatefulWidget {
   const autocomplete({Key? key}) : super(key: key);
@@ -29,15 +24,14 @@ class autocomplete extends StatefulWidget {
 class _autocompleteState extends State<autocomplete> {
   final Controller = TextEditingController();
 
-
   List<Map<String, dynamic>> parents = [];
   List<Map<String, dynamic>> parentss = [];
   String? selectedParentt;
   String? selectedParent;
 
-
   List<ParentFB> parentsFB = [];
   String? selectedParentFB;
+
   // List<Map<String, dynamic>> parentsFB = [];
   // String? selectedParentFB;
   // List<ParentFB> parentlistList = [];
@@ -50,17 +44,17 @@ class _autocompleteState extends State<autocomplete> {
 
   String? DocId;
 
-
   @override
   void initState() {
     super.initState();
     // Fetch classes when the widget initializes
     fetchParentss();
     //fetchParentsFB();
-   // fetchParentss();
-   // fetchParents();
+    // fetchParentss();
+    // fetchParents();
     fetchStudent1();
   }
+
   Future<void> fetchParentsFB() async {
     try {
       List<ParentFB> fetchedParents = [];
@@ -68,9 +62,7 @@ class _autocompleteState extends State<autocomplete> {
       print("Fetching parents from Firebase...");
 
       await for (var snapshot in ParentDatabaseService().getParents()) {
-        fetchedParents = snapshot.docs
-            .map((doc) => doc.data())
-            .toList();
+        fetchedParents = snapshot.docs.map((doc) => doc.data()).toList();
         break;
       }
 
@@ -79,10 +71,10 @@ class _autocompleteState extends State<autocomplete> {
         selectedParentFB = parentsFB.isNotEmpty ? parentsFB.first.fname : null;
       });
 
-
       // Print parent names and IDs
       for (var parent in parentsFB) {
-        print('Parent Names From Firebase: ${parent.fname} ${parent.lname}  ${parent.phone}');
+        print(
+            'Parent Names From Firebase: ${parent.fname} ${parent.lname}  ${parent.phone}');
       }
 
       print("Parents fetched successfully.");
@@ -133,12 +125,11 @@ class _autocompleteState extends State<autocomplete> {
   //   }
   // }
 
-
   Future<void> fetchParentss() async {
     try {
       // Stream parent data directly from Firestore
       final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-      await FirebaseFirestore.instance.collection('parents').get();
+          await FirebaseFirestore.instance.collection('parents').get();
 
       List<ParentFB> fetchedParents = querySnapshot.docs
           .map<ParentFB>((doc) => ParentFB.fromFirestore(doc))
@@ -147,7 +138,7 @@ class _autocompleteState extends State<autocomplete> {
       setState(() {
         parentss = fetchedParents.map((parent) {
           return {
-            'firebaseId':parent.firebaseId ?? '',
+            'firebaseId': parent.firebaseId ?? '',
             'mysqlId': parent.mysqlId ?? '',
             'fname': parent.fname ?? '',
             'lname': parent.lname ?? '',
@@ -175,7 +166,6 @@ class _autocompleteState extends State<autocomplete> {
       // Handle error as needed
     }
   }
-
 
   Future<void> fetchParents() async {
     try {
@@ -210,7 +200,8 @@ class _autocompleteState extends State<autocomplete> {
             'lname': parent.lname ?? '',
             'email': parent.email,
             'phone': parent.phone,
-            'docId': parent.docId ?? '', // Use the retrieved Firestore document ID
+            'docId': parent.docId ?? '',
+            // Use the retrieved Firestore document ID
           };
         }).toList();
         selectedParent = parents.isNotEmpty ? parents.first['name'] : null;
@@ -218,7 +209,8 @@ class _autocompleteState extends State<autocomplete> {
 
       // Print parent names, IDs, and Firestore document IDs
       for (var parent in parents) {
-        print('Parent ID: ${parent['id']}, Name: ${parent['fname']} ${parent['lname']}, Firestore Doc ID: ${parent['docId']}');
+        print(
+            'Parent ID: ${parent['id']}, Name: ${parent['fname']} ${parent['lname']}, Firestore Doc ID: ${parent['docId']}');
         // Check if the document ID is not null and not empty before calling _getProfilePicture
         if (parent['docId'] != null && parent['docId'].isNotEmpty) {
         } else {
@@ -230,7 +222,6 @@ class _autocompleteState extends State<autocomplete> {
       // Handle error as needed
     }
   }
-
 
   Future<String> _getFirestoreDocumentId(int mysqlId) async {
     try {
@@ -254,8 +245,6 @@ class _autocompleteState extends State<autocomplete> {
       return '';
     }
   }
-
-
 
   // Future<void> fetchParents() async {
   //   try {
@@ -284,8 +273,6 @@ class _autocompleteState extends State<autocomplete> {
   //     // Handle error as needed
   //   }
   // }
-
-
 
   Future<void> fetchStudent1() async {
     try {
@@ -316,7 +303,6 @@ class _autocompleteState extends State<autocomplete> {
     }
   }
 
-
   addStudentParentRelation(
       int parentId, int studentId, BuildContext context) async {
     try {
@@ -341,15 +327,15 @@ class _autocompleteState extends State<autocomplete> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-       // body: ParentListScreen(),
+        // body: ParentListScreen(),
         body: Container(
           height: double.infinity,
           width: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Theme.Colors.loginGradientStart,
-                Theme.Colors.loginGradientEnd,
+                AppColors.linearTop,
+                AppColors.linearBottom,
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -359,26 +345,24 @@ class _autocompleteState extends State<autocomplete> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              Center(
+              const Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Flexible(
                         flex: 6,
-                        child: Container(
-                            // color: Colors.blue,
-                            child: Row(
+                        child: Row(
                           children: [
-      
                             CircleAvatar(
                               radius: 30,
-                              backgroundImage: AssetImage('assets/images/school.png'),
+                              backgroundImage:
+                                  AssetImage('assets/images/school.png'),
                             ),
                             // CircleAvatar(
                             //   radius: 30,
@@ -393,22 +377,19 @@ class _autocompleteState extends State<autocomplete> {
                                   fontSize: 18.0, fontWeight: FontWeight.bold),
                             ),
                           ],
-                        )),
+                        ),
                       ),
                       Flexible(
                         flex: 2,
-                        child: Container(
-                          //color: Colors.grey,
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Icon(
-                                  Ionicons.ios_alert,
-                                ),
-                              )
-                            ],
-                          ),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Ionicons.ios_alert,
+                              ),
+                            )
+                          ],
                         ),
                       )
                     ],
@@ -425,48 +406,38 @@ class _autocompleteState extends State<autocomplete> {
                         hintText: 'Search Parent Here',
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
-                            borderSide: const BorderSide(color: Colors.white70))),
+                            borderSide:
+                                const BorderSide(color: Colors.white70))),
                     onChanged: searchParent
                     // searchStudent,
                     ),
               ),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
               Expanded(
-                child:
-                ListView.builder(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(10),
                   itemCount: parentss.length,
                   itemBuilder: (context, index) {
-                    return Material(
-                      child: GestureDetector(
-                        onTap: () {
-                          print("enock test litreave all parents");
-                          // fetchParentsFB();
-                          print('parent profile picture::::::${parentss[index]['profilepicture']} ...........');
-      
-                        },
-                        child: ParentCard(
-                          firstName: parentss[index]['fname'] ?? '',
-                          lastName: parentss[index]['lname'] ?? '',
-                          email: parentss[index]['email'] ?? '',
-                          phone: parentss[index]['phone'] ?? '078566311',
-                          profilepicture: parentss[index]['profilepicture'] ?? '',
-                          onPressed: () {
-                            print('parent profile picture::::::${parentss[index]['profilepicture']} ...........');
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ParentStudentListView(
-                                    parentId: parentss[index]['mysqlId'],
-                                    firstName: parentss[index]['fname'],
-                                    lastName: parentss[index]['lname'],
-                                    email: parentss[index]['email'],
-                                   profilepicture: parentss[index]['profilepicture'],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                    return ParentCard(
+                      firstName: parentss[index]['fname'] ?? '',
+                      lastName: parentss[index]['lname'] ?? '',
+                      email: parentss[index]['email'] ?? '',
+                      phone: parentss[index]['phone'] ?? '078566311',
+                      profilepicture: parentss[index]['profilepicture'] ?? '',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ParentStudentListView(
+                              parentId: parentss[index]['mysqlId'],
+                              firstName: parentss[index]['fname'],
+                              lastName: parentss[index]['lname'],
+                              email: parentss[index]['email'],
+                              profilepicture: parentss[index]['profilepicture'],
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -497,19 +468,18 @@ class _autocompleteState extends State<autocomplete> {
       }
     });
   }
-  // void searchParent(String query) {
-  //   setState(() {
-  //     if (query.isEmpty) {
-  //       // If the query is empty, show all parents
-  //       fetchParentsFB();
-  //     } else {
-  //       parentsFB = parentsFB.where((parent) {
-  //         final parentName = '${parent.fname} ${parent.lname}'.toLowerCase();
-  //         final input = query.toLowerCase();
-  //         return parentName.contains(input);
-  //       }).toList();
-  //     }
-  //   });
-  // }
-
+// void searchParent(String query) {
+//   setState(() {
+//     if (query.isEmpty) {
+//       // If the query is empty, show all parents
+//       fetchParentsFB();
+//     } else {
+//       parentsFB = parentsFB.where((parent) {
+//         final parentName = '${parent.fname} ${parent.lname}'.toLowerCase();
+//         final input = query.toLowerCase();
+//         return parentName.contains(input);
+//       }).toList();
+//     }
+//   });
+// }
 }

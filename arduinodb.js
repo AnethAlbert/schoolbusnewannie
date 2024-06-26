@@ -1,8 +1,8 @@
 const { SerialPort } = require('serialport');
 const pool = require('./db');
 
-// Define the serial port you are using (replace 'COM5' with your actual port)
-const serialPort = new SerialPort({ path: 'COM4', baudRate: 9600 });
+// Define the serial port you are using (replace 'COM5', 'COM4' with your actual port)
+const serialPort = new SerialPort({ path: 'COM9', baudRate: 9600 });
 let receivedData = ''; // Variable to store received data
 
 // Open the serial port
@@ -13,13 +13,13 @@ serialPort.on('open', () => {
 // Read data from the serial port
 serialPort.on('data', (data) => {
     receivedData += data.toString(); // Append the received data to the existing data
-    
+
     // Check if the received data contains the end marker ('\r\n')
     const endMarkerIndex = receivedData.indexOf('\r\n');
     if (endMarkerIndex !== -1) {
         // Extract the complete message
         const completeMessage = receivedData.slice(0, endMarkerIndex);
-        
+
         // Check if the message contains the fingerprint ID
         const idMatch = completeMessage.match(/Found ID # (\d+)/); // Adjusted regex
         if (idMatch) {
@@ -48,7 +48,7 @@ serialPort.on('data', (data) => {
         } else {
             console.log('Received data:', completeMessage);
         }
-        
+
         // Reset receivedData to store the remaining data
         receivedData = receivedData.slice(endMarkerIndex + 2);
     }

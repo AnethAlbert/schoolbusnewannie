@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:newschoolbusapp/core/utils/app_colors.dart';
 import 'package:newschoolbusapp/ui/bucketliveMap03/BucketMap03.dart';
 
 class ParentCard extends StatelessWidget {
@@ -11,7 +12,8 @@ class ParentCard extends StatelessWidget {
   final String phone;
   final String? profilepicture;
   final VoidCallback onPressed;
- // final String profilePicture;
+
+  // final String profilePicture;
 
   const ParentCard({
     Key? key,
@@ -19,9 +21,9 @@ class ParentCard extends StatelessWidget {
     required this.lastName,
     required this.email,
     required this.phone,
-     this.profilepicture,
+    this.profilepicture,
     required this.onPressed,
-   // required this.profilePicture,
+    // required this.profilePicture,
   }) : super(key: key);
 
   // Widget showImage() {
@@ -55,26 +57,26 @@ class ParentCard extends StatelessWidget {
     return imageData;
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 22.0,
+      elevation: 10.0,
       color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(4.0),
         child: ListTile(
-          leading:FutureBuilder<Widget>(
+          contentPadding: const EdgeInsets.all(0),
+          leading: FutureBuilder<Widget>(
             future: showImage(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator(); // Placeholder while loading
+                return const CircularProgressIndicator(); // Placeholder while loading
               } else {
                 if (snapshot.hasError) {
-                  return Text('Error loading image'); // Handle error
+                  return const Text('Error loading image'); // Handle error
                 } else {
                   return snapshot.data!; // Return the image widget
                 }
@@ -82,11 +84,10 @@ class ParentCard extends StatelessWidget {
             },
           ),
 
-
           // CircleAvatar(
-      //       radius: 36,
-      //       backgroundImage: AssetImage('assets/images/parent.jpg'),
-      //     ),
+          //       radius: 36,
+          //       backgroundImage: AssetImage('assets/images/parent.jpg'),
+          //     ),
           // CircleAvatar(
           //   radius: 36,
           //   backgroundImage: NetworkImage(
@@ -95,43 +96,43 @@ class ParentCard extends StatelessWidget {
           // ),
           title: Text(
             firstName,
-            style: TextStyle(fontSize: 14.0),
+            style: const TextStyle(fontSize: 14.0),
           ),
-          subtitle: Container(
-           // width: 100,
-             // color: Colors.red,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$email',
-                  style: TextStyle(fontSize: 14.0),
+          subtitle: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                email,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontSize: 12.0,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  phone,
-                  style: TextStyle(fontSize: 14.0),
-                ),
-              ],
-            ),
+              ),
+              Text(
+                phone,
+                style: const TextStyle(fontSize: 12.0),
+              ),
+            ],
           ),
-          trailing: Container(
+          trailing: SizedBox(
             width: 90,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ElevatedButton(
-                  onPressed:onPressed,
-                  child: Text(
-                    'next',
-                    style: TextStyle(fontSize: 14.0, color: Colors.white),
-                  ),
+                  onPressed: onPressed,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppColors.linearMiddle,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
+                  ),
+                  child: const Text(
+                    'next',
+                    style: TextStyle(fontSize: 14.0, color: Colors.white),
                   ),
                 ),
               ],

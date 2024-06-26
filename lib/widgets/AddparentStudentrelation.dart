@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:newschoolbusapp/core/utils/app_colors.dart';
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
 import 'package:newschoolbusapp/widgets/serchTextfield.dart';
 import 'package:newschoolbusapp/widgets/studentListToParentBuilder.dart';
@@ -13,9 +14,14 @@ class ParentStudentListView extends StatefulWidget {
   final String email;
   final String profilepicture;
 
-  const ParentStudentListView({Key? key, required this.parentId, required this.firstName, required this.lastName, required  this.email,
-    required this.profilepicture
-  }) : super(key: key);
+  const ParentStudentListView(
+      {Key? key,
+      required this.parentId,
+      required this.firstName,
+      required this.lastName,
+      required this.email,
+      required this.profilepicture})
+      : super(key: key);
 
   @override
   State<ParentStudentListView> createState() => _ParentStudentListViewState();
@@ -42,9 +48,6 @@ class _ParentStudentListViewState extends State<ParentStudentListView> {
     return imageData;
   }
 
-
-
-
   //int? parentId;
 
   @override
@@ -54,11 +57,11 @@ class _ParentStudentListViewState extends State<ParentStudentListView> {
         child: Hero(
           tag: 'parentHeroid',
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Theme.Colors.loginGradientStart,
-                  Theme.Colors.loginGradientEnd,
+                  AppColors.linearTop,
+                  AppColors.linearBottom,
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -70,29 +73,29 @@ class _ParentStudentListViewState extends State<ParentStudentListView> {
               height: 300,
               width: double.infinity,
               child: Padding(
-                padding: const EdgeInsets.only(top: 30.0,left: 8,right: 8,bottom: 8),
+                padding: const EdgeInsets.only(
+                    top: 10.0, left: 8, right: 8, bottom: 8),
                 child: Column(
                   children: [
-                    SizedBox(
-                      height: 20,
-                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child:
-                          FutureBuilder<Widget>(
+                          child: FutureBuilder<Widget>(
                             future: showImage(),
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return CircularProgressIndicator(); // Placeholder while loading
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const CircularProgressIndicator(); // Placeholder while loading
                               } else {
                                 if (snapshot.hasError) {
-                                  return Text('Error loading image'); // Handle error
+                                  return const Text(
+                                      'Error loading image'); // Handle error
                                 } else {
-                                  return snapshot.data!; // Return the image widget
+                                  return snapshot
+                                      .data!; // Return the image widget
                                 }
                               }
                             },
@@ -105,25 +108,23 @@ class _ParentStudentListViewState extends State<ParentStudentListView> {
                         ),
                         Column(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,children: [
-                          Text('ParentId : ${widget.parentId}'),
-                          Text(' ${widget.firstName}'),
-                          Text('${widget.email}'),
-                        ])
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('ParentId : ${widget.parentId}'),
+                              Text(' ${widget.firstName}'),
+                              Text('${widget.email}'),
+                            ])
                       ],
                     ),
-
-                    SizedBox(
-                      height: 10,
-                    ),
-                    serchTextfield(parentId:widget.parentId),
+                    serchTextfield(parentId: widget.parentId),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white70
-                          ),
-                          child: Center(child: Text("Below are Students Related to  ${widget.firstName} ${widget.lastName} "))),
+                          decoration:
+                              const BoxDecoration(color: Colors.white70),
+                          child: Center(
+                              child: Text(
+                                  "Below are Students Related to  ${widget.firstName} ${widget.lastName} "))),
                     ),
                     StudentListBuilder(parent_id: widget.parentId)
                   ],

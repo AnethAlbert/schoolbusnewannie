@@ -1,42 +1,41 @@
 import 'dart:convert';
-//import 'dart:html';
-//import 'dart:html' as html;
-import 'dart:math';
+
 // import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:newschoolbusapp/componets/utils/colors.dart';
-import 'package:newschoolbusapp/componets/widgets/text_field_input.dart';
-import 'package:newschoolbusapp/models/fireBaseModels/gurdisanfb.dart';
-import 'package:newschoolbusapp/models/gurdian.dart';
-import 'package:newschoolbusapp/services/firebaseservices/gurdian_database_service.dart';
-import 'package:newschoolbusapp/ui/bucket/bucketnew.dart';
+import 'package:newschoolbusapp/core/utils/input_validation.dart';
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
-import 'package:newschoolbusapp/ui/gurdian/registrationRoom.dart';
-import 'package:newschoolbusapp/ui/login_page.dart';
-import 'package:newschoolbusapp/utils/utils.dart';
-import 'package:mirai_dropdown_menu/mirai_dropdown_menu.dart';
+import 'package:newschoolbusapp/ui/trip_pages/create_trip_page.dart';
+import 'package:newschoolbusapp/widgets/custom_material_button.dart';
+import 'package:newschoolbusapp/widgets/custom_snackbar.dart';
 import 'package:newschoolbusapp/widgets/dropDownButton.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:newschoolbusapp/widgets/loading_dialog.dart';
 
-import '../../services/Gurdian_apiService.dart';
+import '../../core/models/fireBaseModels/gurdisanfb.dart';
+import '../../core/models/gurdian.dart';
+import '../../core/services/Gurdian_apiService.dart';
+import '../../core/services/firebaseservices/fingerprint_id_service.dart';
+import '../../core/services/firebaseservices/gurdian_database_service.dart';
+import '../../core/utils/app_colors.dart';
+import '../../core/utils/image_utils.dart';
+import '../../core/utils/utils.dart';
+import '../../presentation/componets/widgets/text_field_input.dart';
 
-class GurdianRegistrationClass extends StatefulWidget {
-  const GurdianRegistrationClass({Key? key}) : super(key: key);
+class GuardianRegistrationClass extends StatefulWidget {
+  const GuardianRegistrationClass({super.key});
 
   @override
-  State<GurdianRegistrationClass> createState() =>
-      _GurdianRegistrationClassState();
+  State<GuardianRegistrationClass> createState() =>
+      _GuardianRegistrationClassState();
 }
 
-class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
+class _GuardianRegistrationClassState extends State<GuardianRegistrationClass> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -51,6 +50,7 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
   Uint8List? _image;
   String? filepath;
   String? imagedata;
+  final FingerprintIdService fingerprintIdService = FingerprintIdService();
 
   // var image;
   XFile? _pickedImage;
@@ -66,7 +66,7 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
   @override
   void initState() {
     super.initState();
-    generateUniqueNumber(); // Generate unique number when page is loaded
+    getNewFingerprintId(); // Generate unique number when page is loaded
   }
 
   @override
@@ -82,14 +82,23 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
     _passwordController.dispose();
   }
 
-  // Function to generate a unique number between 1 and 127
-  void generateUniqueNumber() {
-    setState(() {
-      _uniqueNumber = (Random().nextInt(127) + 1).toString();
-      // Set the generated number in the controller text
-      _digitalFingerPrintController.text = '$_uniqueNumber';
-    });
+  // Function to get a unique number between 1 and 127
+  Future<void> getNewFingerprintId() async {
+    // _uniqueNumber = (Random().nextInt(127) + 1).toString();
+    // _digitalFingerPrintController.text = '$_uniqueNumber';
+    String? id = await fingerprintIdService.getNewFingerprintId();
+    if (id != null) {
+      if (int.parse(id) >= 127) {
+        if (mounted) {
+          showSnackBar("Fingerprint device storage is full", context);
+        }
+        return;
+      }
+      _digitalFingerPrintController.text = id;
+      _uniqueNumber = id;
+    }
   }
+
   void selectImage() async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(source: ImageSource.gallery);
@@ -114,6 +123,7 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
       });
     }
   }
+
   // void selectImage() async {
   //   final picker = ImagePicker();
   //   _pickedImage = await picker.pickImage(source: ImageSource.gallery);
@@ -159,9 +169,7 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
   // }
 
   Future<void> signUpUser() async {
-    setState(() {
-      isLoading = true;
-    });
+    loadingDialog(context);
 
     try {
       // Ensure _image is not null
@@ -170,7 +178,7 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
       }
 
       // Convert _image to base64-encoded string
-      String base64Image = base64Encode(_image!);
+      String base64Image = await ImageUtils.compressImage(_image!);
 
       // Create a Guardian object
       Gurdian guardian = Gurdian(
@@ -185,6 +193,9 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
         timestamp: DateTime.now(),
       );
 
+      if (!mounted) {
+        return;
+      }
       // Add the Guardian to MySQL using ApiService
       Gurdian savedGuardian = await _apiService.addGurdian(
         fname: guardian.fname!,
@@ -198,13 +209,21 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
         context: context,
       );
 
+      if (kDebugMode) {
+        print("GUARD PROFILE: Added to MySql");
+      }
+
       // Retrieve the ID of the saved Guardian
       int mysqlId = savedGuardian.id!;
 
       // Register user in Firebase Authentication
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-          email: guardian.email!, password: guardian.password!);
+              email: guardian.email!, password: guardian.password!);
+
+      if (kDebugMode) {
+        print("GUARD PROFILE: Added Auth User");
+      }
 
       // Get the Firebase User ID
       String firebaseUserId = userCredential.user!.uid;
@@ -212,6 +231,7 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
       // Create a GuardianFB object for Firebase
       GurdianFB guardianFB = GurdianFB(
         firebaseId: firebaseUserId,
+        firestoreId: null,
         mysqlId: mysqlId,
         fname: guardian.fname!,
         lname: guardian.lname!,
@@ -223,32 +243,57 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
         timestamp: guardian.timestamp!,
       );
 
+      GurdianFB _guardianFB = GurdianFB(
+        firebaseId: firebaseUserId,
+        firestoreId: null,
+        mysqlId: mysqlId,
+        fname: guardian.fname!,
+        lname: guardian.lname!,
+        email: guardian.email!,
+        phone: guardian.phone!,
+        digitalfingerprint: guardian.digitalfingerprint!,
+        role: guardian.role!,
+        timestamp: guardian.timestamp!,
+      );
+
+      if (kDebugMode) {
+        print(_guardianFB.toJson());
+      }
+
       // Insert the GuardianFB object into Firestore with user.uid as document ID
       await FirebaseFirestore.instance
           .collection('guardians')
           .doc(firebaseUserId) // Use user.uid as the document ID
           .set(guardianFB.toJson());
 
+      if (kDebugMode) {
+        print("GUARD PROFILE: Added to Firestore");
+      }
+
+      await fingerprintIdService.updateFingerprintId();
+
+      if (kDebugMode) {
+        print("GUARD PROFILE: Added new FingerprintId");
+      }
+
       // Proceed with navigation or any other actions
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => registrationRoom()));
+      if (mounted) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.pop(context);
+        customSnackBar(context, "Success", Colors.green);
+      }
     } catch (error) {
       // Print the error to the console
-      print("Error occurred during sign up: $error");
+      if (mounted) {
+        Navigator.pop(context);
+        customSnackBar(context, "Error occurred: $error", Colors.red);
+      }
+      if (kDebugMode) {
+        print("Error occurred during sign up: $error");
+      }
       // Show error in SnackBar
-      showSnackBar("Error occurred: $error", context);
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-
-  void navigatetologin() {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => noSummaryClass(),
-    ));
+    } finally {}
   }
 
   @override
@@ -260,25 +305,36 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
         child: Form(
           key: _formKey,
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Theme.Colors.loginGradientStart,
-                  Theme.Colors.loginGradientEnd,
+                  AppColors.linearTop,
+                  AppColors.linearBottom,
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             width: double.infinity,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Center(child: Text("Gurdian Registration")),
-                  const SizedBox(height: 20),
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: Text(
+                        "Guardian Registration",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   Center(
                     child: Stack(children: [
                       _image != null
@@ -293,11 +349,11 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
                           bottom: -10,
                           left: 80,
                           child: IconButton(
-                            onPressed:(){
-                               selectImage();
-                             // selectImageWeb();
-                              },
-                            icon: Icon(
+                            onPressed: () {
+                              selectImage();
+                              // selectImageWeb();
+                            },
+                            icon: const Icon(
                               Icons.add_a_photo,
                               size: 25,
                             ),
@@ -311,13 +367,11 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
                       textInputType: TextInputType.text,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your first name';
+                          return 'Please enter your first name.';
                         }
                         return null; // Return null if validation passes
                       },
-                      onTap: () {
-                        print("first name is tapped");
-                      }),
+                      onTap: () {}),
                   const SizedBox(height: 18),
                   TextFieldInput(
                     textEditingController: _lastNameController,
@@ -325,7 +379,7 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
                     textInputType: TextInputType.text,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
+                        return 'Please enter your last name.';
                       }
                       return null; // Return null if validation passes
                     },
@@ -337,9 +391,10 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
                     textInputType: TextInputType.text,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
+                        return 'Please enter your email.';
+                      } else {
+                        return InputValidation.email(value);
                       }
-                      return null; // Return null if validation passes
                     },
                   ),
                   const SizedBox(height: 18),
@@ -349,90 +404,93 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
                     textInputType: TextInputType.text,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null; // Return null if validation passes
+                        return 'Please enter your phone number.';
+                      } else {
+                        return InputValidation.phone(value);
+                      } // Return null if validation passes
                     },
                   ),
                   const SizedBox(height: 18),
-              TextFieldInput(
-                textEditingController: _digitalFingerPrintController,
-                hintText: "digital Finger print",
-                textInputType: TextInputType.text,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your first name';
-                  }
-                  return null; // Return null if validation passes
-                },
-                readOnly: true,
-                onTap: () {
-                  // generateUniqueNumber(); // Generate unique number
-                  // Show a dialog box when the text field is tapped
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Add Digital Fingerprint"),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text("Unique Number: $_uniqueNumber"), // Display the unique number
-                            SizedBox(height: 20),
-                            Text("Add Signature"),
-                            Container(
-                              height: 50,
-                              width: 50,
-                              child: Image.network(
-                                'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Ionicons_finger-print-sharp.svg/640px-Ionicons_finger-print-sharp.svg.png',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ],
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text("Cancel"),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              _apiService.addFingerPrint(_uniqueNumber!).then((response) {
-                                // Handle success
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(response['message']),
-                                    backgroundColor: Colors.green, // Show success message in green
-                                  ),
-                                );
-                              }).catchError((error) {
-                                // Handle error
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(error.toString()),
-                                    backgroundColor: Colors.red, // Show error message in red
-                                  ),
-                                );
-                              }).whenComplete(() {
-                                // Close the dialog box
-                                Navigator.pop(context);
-                              });
-                            },
-                            child: Text("OK"),
-                          ),
-
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-
-
-                  const SizedBox(height: 18),
-
+                  // TextFieldInput(
+                  //   textEditingController: _digitalFingerPrintController,
+                  //   hintText: "digital Finger print",
+                  //   textInputType: TextInputType.text,
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please enter your first name';
+                  //     }
+                  //     return null; // Return null if validation passes
+                  //   },
+                  //   readOnly: true,
+                  //   onTap: () {
+                  //     // generateUniqueNumber(); // Generate unique number
+                  //     // Show a dialog box when the text field is tapped
+                  //     showDialog(
+                  //       context: context,
+                  //       builder: (BuildContext context) {
+                  //         return AlertDialog(
+                  //           title: const Text("Add Digital Fingerprint"),
+                  //           content: Column(
+                  //             mainAxisSize: MainAxisSize.min,
+                  //             children: [
+                  //               Text("Unique Number: $_uniqueNumber"),
+                  //               // Display the unique number
+                  //               const SizedBox(height: 10),
+                  //               const Text("Add Signature"),
+                  //               const SizedBox(height: 10),
+                  //               SizedBox(
+                  //                 height: 50,
+                  //                 width: 50,
+                  //                 child: Image.network(
+                  //                   'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Ionicons_finger-print-sharp.svg/640px-Ionicons_finger-print-sharp.svg.png',
+                  //                   fit: BoxFit.cover,
+                  //                 ),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           actions: [
+                  //             TextButton(
+                  //               onPressed: () {
+                  //                 Navigator.pop(context);
+                  //               },
+                  //               child: const Text("Cancel"),
+                  //             ),
+                  //             TextButton(
+                  //               onPressed: () {
+                  //                 _apiService
+                  //                     .addFingerPrint(_uniqueNumber)
+                  //                     .then((response) {
+                  //                   // Handle success
+                  //                   ScaffoldMessenger.of(context).showSnackBar(
+                  //                     SnackBar(
+                  //                       content: Text(response['message']),
+                  //                       backgroundColor: Colors
+                  //                           .green, // Show success message in green
+                  //                     ),
+                  //                   );
+                  //                 }).catchError((error) {
+                  //                   // Handle error
+                  //                   ScaffoldMessenger.of(context).showSnackBar(
+                  //                     SnackBar(
+                  //                       content: Text(error.toString()),
+                  //                       backgroundColor: Colors
+                  //                           .red, // Show error message in red
+                  //                     ),
+                  //                   );
+                  //                 }).whenComplete(() {
+                  //                   // Close the dialog box
+                  //                   Navigator.pop(context);
+                  //                 });
+                  //               },
+                  //               child: const Text("OK"),
+                  //             ),
+                  //           ],
+                  //         );
+                  //       },
+                  //     );
+                  //   },
+                  // ),
+                  // const SizedBox(height: 18),
                   //  TextFieldInput(
                   //   textEditingController: _roleController,
                   //     hintText: "role Textfield",
@@ -443,98 +501,122 @@ class _GurdianRegistrationClassState extends State<GurdianRegistrationClass> {
                   //   }
                   //
                   // ),
-
-                  DropDownButton(
-                    items: roles,
-                    selectedValue: selectedRole,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedRole = value;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 18),
                   TextFieldInput(
                     textEditingController: _passwordController,
                     hintText: "password",
                     textInputType: TextInputType.text,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
+                        return 'Please enter your password.';
+                      } else {
+                        return InputValidation.minLength(value, 6);
                       }
-                      return null; // Return null if validation passes
                     },
-                    ispass: true,
                   ),
                   const SizedBox(height: 18),
+
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: DropDownButton(
+                      items: roles,
+                      selectedValue: selectedRole,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedRole = value;
+                        });
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
-                    child: isLoading
-                        ? Container(
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text("Waiting "),
-                                  SizedBox(width: 2),
-                                  SpinKitWave(color: Colors.white, size: 30),
-                                  // Add more widgets if needed
-                                ],
+                    child: CustomMaterialButton(
+                      label: "Register Guardian",
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          // signUpUser();
+                          if (_image == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Image is required."),
+                                backgroundColor:
+                                    Colors.red, // Show success message in green
                               ),
-                            ),
-                          )
-                        : Container(
-                            //margin: EdgeInsets.only(top: 10.0),
-                            decoration: new BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5.0)),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: Theme.Colors.loginGradientStart,
-                                  offset: Offset(1.0, 6.0),
-                                  blurRadius: 20.0,
-                                ),
-                                BoxShadow(
-                                  color: Theme.Colors.loginGradientEnd,
-                                  offset: Offset(1.0, 6.0),
-                                  blurRadius: 20.0,
-                                ),
-                              ],
-                              gradient: new LinearGradient(
-                                  colors: [
-                                    Theme.Colors.loginGradientEnd,
-                                    Theme.Colors.loginGradientStart
-                                  ],
-                                  begin: const FractionalOffset(0.2, 0.2),
-                                  end: const FractionalOffset(1.0, 1.0),
-                                  stops: [0.0, 1.0],
-                                  tileMode: TileMode.clamp),
-                            ),
-                            child: MaterialButton(
-                                highlightColor: Colors.transparent,
-                                splashColor: Theme.Colors.loginGradientEnd,
-                                //shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 42.0),
-                                  child: Text(
-                                    "SIGN UP",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 25.0,
-                                        fontFamily: "WorkSansBold"),
-                                  ),
-                                ),
-                                onPressed: () {
+                            );
+                            return;
+                          }
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              bool waitFingerPrintCapture = true;
 
-                                  if (_formKey.currentState!.validate()) {
-                                    print("Enock");
-                                    signUpUser();
-                                  }
-                                }),
-                          ),
+                              _apiService
+                                  .addFingerPrint(_uniqueNumber)
+                                  .then((response) {
+                                // Handle success
+                                waitFingerPrintCapture = false;
+
+                                customSnackBar(
+                                  context,
+                                  response["message"],
+                                  Colors.green,
+                                );
+                              }).catchError((error) {
+                                customSnackBar(
+                                  context,
+                                  error.toString(),
+                                  Colors.red,
+                                );
+                              });
+
+                              return AlertDialog(
+                                title: const Text("Add Digital Fingerprint"),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                        "Press your Finger for two (2) seconds, twice to capture new fingerprint."),
+                                    const SizedBox(height: 20),
+                                    SizedBox(
+                                      height: 50,
+                                      width: 50,
+                                      child: Image.network(
+                                        'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Ionicons_finger-print-sharp.svg/640px-Ionicons_finger-print-sharp.svg.png',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      !waitFingerPrintCapture
+                                          ? signUpUser()
+                                          : null;
+                                    },
+                                    child: const Text("OK"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          customSnackBar(
+                            context,
+                            "Failed. Validation Error",
+                            Colors.red,
+                          );
+                        }
+                      },
+                    ),
                   ),
                   // InkWell(
                   //   onTap: () {

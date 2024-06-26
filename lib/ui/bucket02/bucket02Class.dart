@@ -1,18 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:newschoolbusapp/models/StudentTripList.dart';
-import 'package:newschoolbusapp/models/student.dart';
-import 'package:newschoolbusapp/services/Student_apiService.dart';
-import 'package:newschoolbusapp/services/Trip_apiService.dart';
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
-import 'package:newschoolbusapp/ui/bucket/bucketnew.dart';
+import 'package:newschoolbusapp/ui/trip_pages/create_trip_page.dart';
 import 'package:newschoolbusapp/ui/bucketliveMap03/BucketMap03.dart';
 import 'package:newschoolbusapp/ui/live/mapPage.dart';
 import 'package:newschoolbusapp/ui/profiles/guedianProfile.dart';
 import 'package:newschoolbusapp/widgets/bottomNavigationClass.dart';
 import 'package:newschoolbusapp/widgets/studentCard.dart';
 import 'package:newschoolbusapp/widgets/studentCardAttendacy.dart';
+
+import '../../core/services/Trip_apiService.dart';
 
 class Bucket02 extends StatefulWidget {
   final int tripId;
@@ -27,13 +25,12 @@ class _Bucket02State extends State<Bucket02> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    noSummaryClass(),
-    noSummaryClass(),
-    noSummaryClass(),
-    MyProfileGurdian(),
-   // MapPage(),
-   // ContactScreen(),
-
+    StartTripPage(),
+    StartTripPage(),
+    StartTripPage(),
+    MyProfileGuardian(),
+    // MapPage(),
+    // ContactScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -204,12 +201,23 @@ class _Bucket02State extends State<Bucket02> {
                                     //id: studentsSearch[index]['mysqlId'],
                                     fname: studentsSearch[index]['fname'] ?? '',
                                     lname: studentsSearch[index]['lname'] ?? '',
-                                    classId: studentsSearch[index]['class_id'] ?? '',
-                                    digitalFingerprint: studentsSearch[index]['digitalfingerprint'] ?? '',
-                                    firebaseId: studentsSearch[index]['firebaseId'] ?? '',
-                                    profilePicture: studentsSearch[index]['profilepicture'] ?? '',
-                                    registrationNumber: studentsSearch[index]['registration_number'] ?? '',
-                                    stationId: studentsSearch[index]['station_id'] ?? '',
+                                    classId:
+                                        studentsSearch[index]['class_id'] ?? '',
+                                    digitalFingerprint: studentsSearch[index]
+                                            ['digitalfingerprint'] ??
+                                        '',
+                                    firebaseId: studentsSearch[index]
+                                            ['firebaseId'] ??
+                                        '',
+                                    profilePicture: studentsSearch[index]
+                                            ['profilepicture'] ??
+                                        '',
+                                    registrationNumber: studentsSearch[index]
+                                            ['registration_number'] ??
+                                        '',
+                                    stationId: studentsSearch[index]
+                                            ['station_id'] ??
+                                        '',
                                     age: studentsSearch[index]['age'] ?? 0,
                                   ),
                                 ),
@@ -228,11 +236,11 @@ class _Bucket02State extends State<Bucket02> {
           ],
         ),
       ),
-       bottomNavigationBar: CustomBottomNavigationBar(
-      currentIndex: _currentIndex,
-      onTap: _onItemTapped,
-      screens: _screens,
-    ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _onItemTapped,
+        screens: _screens,
+      ),
     );
   }
 

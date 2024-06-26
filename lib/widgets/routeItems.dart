@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:newschoolbusapp/models/route.dart';
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
+
+import '../core/models/route.dart';
 
 class RouteItem extends StatelessWidget {
   final RouteClass route;
@@ -26,7 +27,10 @@ class RouteItem extends StatelessWidget {
           ),
         ],
         gradient: LinearGradient(
-          colors: [Theme.Colors.loginGradientEnd, Theme.Colors.loginGradientStart],
+          colors: [
+            Theme.Colors.loginGradientEnd,
+            Theme.Colors.loginGradientStart
+          ],
           begin: const FractionalOffset(0.2, 0.2),
           end: const FractionalOffset(1.0, 1.0),
           stops: [0.0, 1.0],

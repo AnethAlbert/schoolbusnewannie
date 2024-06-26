@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:newschoolbusapp/models/fireBaseModels/parentfb.dart';
-import 'package:newschoolbusapp/services/firebaseservices/parent_database_service.dart';
+import 'package:flutter/material.dart';
+
+import '../core/models/fireBaseModels/parentfb.dart';
+import '../core/services/firebaseservices/parent_database_service.dart';
 
 class ParentListScreen extends StatelessWidget {
   @override

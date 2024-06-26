@@ -7,6 +7,13 @@ const checkStudentExists = `
   WHERE id = ?;
 `;
 
+const checkStudentTripExists = `
+  SELECT id
+  FROM student_trip_list
+  WHERE trip_id = ?
+  AND student_id = ?;
+`;
+
 // Query to add a student to the student_trip_list table
 const addStudentToTripList = `
   INSERT INTO student_trip_list (trip_id, student_id)
@@ -47,5 +54,6 @@ module.exports = {
   getStudentInfo,
   getParentInfo,
   getAllStudentIds,
-  getStudentIdsByTripId
+  getStudentIdsByTripId,
+  checkStudentTripExists
 };

@@ -7,7 +7,7 @@
 // import 'package:schoolbassapp/models/gurdian.dart';
 // import 'package:schoolbassapp/services/Gurdian_apiService.dart';
 // import 'package:schoolbassapp/services/Trip_apiService.dart';
-// import 'package:schoolbassapp/ui/bucket01/bucket01Class.dart';
+// import 'package:schoolbassapp/ui/bucket01/trip_page.dart';
 // import 'package:schoolbassapp/style/theme.dart' as Theme;
 //
 // class ProfilePicDialogBox extends StatefulWidget {
@@ -236,23 +236,19 @@
 //   }
 // }
 
-
-
-
-
-
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:newschoolbusapp/models/fireBaseModels/gurdisanfb.dart';
-import 'package:newschoolbusapp/models/gurdian.dart';
-import 'package:newschoolbusapp/services/Gurdian_apiService.dart';
-import 'package:newschoolbusapp/services/Trip_apiService.dart';
-import 'package:newschoolbusapp/ui/bucket01/bucket01Class.dart';
+import 'package:newschoolbusapp/core/utils/app_colors.dart';
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
+import 'package:newschoolbusapp/widgets/custom_material_button.dart';
+import 'package:newschoolbusapp/widgets/custom_snackbar.dart';
+
+import '../core/models/fireBaseModels/gurdisanfb.dart';
+import '../core/services/Trip_apiService.dart';
+import '../ui/trip_pages/trip_page.dart';
 
 class ProfilePicDialogBox extends StatefulWidget {
   final int tripRecordId;
@@ -296,20 +292,24 @@ class _ProfilePicDialogBoxState extends State<ProfilePicDialogBox> {
       print('Trip Record updated successfully');
       print('ididid:::::::${id}');
 
-     // Navigate only if the update is successful
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Buck01Class(realTripID:Tripid),
-        ),
-      );
+      // Navigate only if the update is successful
+      customSnackBar(context, "Success", Colors.green);
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TripPage(realTripID: widget.tripRecordId),
+          ));
     } catch (e) {
       print('Error updating trip record: $e');
+      customSnackBar(context, "$e", Colors.red);
       // Handle the error if needed
     }
   }
 
   Future<void> getUserByFingerprint() async {
+    print("FptID: ${widget.fingerPrintId}");
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('guardians')
@@ -320,7 +320,7 @@ class _ProfilePicDialogBoxState extends State<ProfilePicDialogBox> {
       if (querySnapshot.docs.isNotEmpty) {
         DocumentSnapshot snapshot = querySnapshot.docs.first;
         GurdianFB gurdian =
-        GurdianFB.fromJson(snapshot.data() as Map<String, dynamic>);
+            GurdianFB.fromJson(snapshot.data() as Map<String, dynamic>);
 
         setState(() {
           id = gurdian.mysqlId;
@@ -338,11 +338,11 @@ class _ProfilePicDialogBoxState extends State<ProfilePicDialogBox> {
           print('Last Name: $_lname');
           print('Phone: $_phone');
           print('Email: $_email');
-        //  print('Profile Picture: $_profilepicture');
+          //  print('Profile Picture: $_profilepicture');
           print('Digital Fingerprint: $_digitalfingerprint');
         });
       } else {
-        print('Guardian not found New Trable ...');
+        print('Guardian not found ...');
         setState(() {
           _isLoading = false; // Set loading state to false
         });
@@ -354,7 +354,6 @@ class _ProfilePicDialogBoxState extends State<ProfilePicDialogBox> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -409,38 +408,10 @@ class _ProfilePicDialogBoxState extends State<ProfilePicDialogBox> {
                               color: Colors.grey,
                             ),
                           ),
-                          Container(
-                            margin: EdgeInsets.only(top: 10.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.0),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Theme.Colors.loginGradientEnd,
-                                  Theme.Colors.loginGradientStart
-                                ],
-                                begin: const FractionalOffset(0.2, 0.2),
-                                end: const FractionalOffset(1.0, 1.0),
-                                stops: [0.0, 1.0],
-                                tileMode: TileMode.clamp,
-                              ),
-                            ),
-                            child: MaterialButton(
-                              onPressed: () => _onPressed(context),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 42.0,
-                                ),
-                                child: Text(
-                                  "Next",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 25.0,
-                                    fontFamily: "WorkSansBold",
-                                  ),
-                                ),
-                              ),
-                            ),
+                          SizedBox(height: 10),
+                          CustomMaterialButton(
+                            label: "Finish",
+                            onPressed: () => _onPressed(context),
                           ),
                         ],
                       ),

@@ -1,27 +1,30 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:newschoolbusapp/componets/utils/colors.dart';
-import 'package:newschoolbusapp/componets/widgets/text_field_input.dart';
-import 'package:newschoolbusapp/models/fireBaseModels/parentfb.dart';
-import 'package:newschoolbusapp/models/parent.dart';
-import 'package:newschoolbusapp/services/firebaseservices/parent_database_service.dart';
-import 'package:newschoolbusapp/ui/bucket/bucketnew.dart';
-import 'package:newschoolbusapp/style/theme.dart' as Theme;
-import 'package:newschoolbusapp/ui/gurdian/registrationRoom.dart';
-import 'package:newschoolbusapp/ui/login_page.dart';
-import 'package:newschoolbusapp/utils/utils.dart';
-import 'package:mirai_dropdown_menu/mirai_dropdown_menu.dart';
 
 //import 'dart:html' as html;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:newschoolbusapp/core/utils/app_colors.dart';
+import 'package:newschoolbusapp/core/utils/input_validation.dart';
+import 'package:newschoolbusapp/style/theme.dart' as Theme;
+import 'package:newschoolbusapp/ui/trip_pages/create_trip_page.dart';
+import 'package:newschoolbusapp/ui/guardian/registrationRoom.dart';
+import 'package:newschoolbusapp/widgets/custom_material_button.dart';
+import 'package:newschoolbusapp/widgets/loading_dialog.dart';
 
-import '../../services/Parent_apiService.dart';
+import '../../core/models/fireBaseModels/parentfb.dart';
+import '../../core/models/parent.dart';
+import '../../core/services/Parent_apiService.dart';
+import '../../core/services/firebaseservices/parent_database_service.dart';
+import '../../core/utils/image_utils.dart';
+import '../../core/utils/utils.dart';
+import '../../presentation/componets/widgets/text_field_input.dart';
+import '../../widgets/custom_snackbar.dart';
 
 class ParentRegistrationClass extends StatefulWidget {
   const ParentRegistrationClass({Key? key}) : super(key: key);
@@ -57,7 +60,6 @@ class _ParentRegistrationClassState extends State<ParentRegistrationClass> {
         desiredAccuracy: LocationAccuracy.high);
     return position;
   }
-
 
   @override
   void dispose() {
@@ -140,14 +142,16 @@ class _ParentRegistrationClassState extends State<ParentRegistrationClass> {
   // }
 
   Future<void> singUpUser() async {
-    setState(() {
-      isLoading = true;
-    });
-    Position position = await _getCurrentLocation();
-
+    loadingDialog(context);
     try {
-      // Convert Uint8List to base64-encoded String
-      String base64Image = base64Encode(_image!);
+      // Ensure _image is not null
+      if (_image == null) {
+        throw Exception("Image is required.");
+      }
+
+      // Convert _image to base64-encoded string
+      String base64Image = await ImageUtils.compressImage(_image!);
+      // Position position = await _getCurrentLocation();
 
       // Create a Guardian object
       Parent parent = Parent(
@@ -156,7 +160,7 @@ class _ParentRegistrationClassState extends State<ParentRegistrationClass> {
         email: _emailController.text,
         phone: _phoneController.text,
         profilepicture: base64Image,
-        password: _passwordController.text,
+        password: "_password_",
         timestamp: DateTime.now(),
       );
 
@@ -192,8 +196,10 @@ class _ParentRegistrationClassState extends State<ParentRegistrationClass> {
         phone: parent.phone!,
         profilepicture: parent.profilepicture!,
         timestamp: parent.timestamp!,
-        latitude: position.latitude,
-        longitude: position.longitude,
+        // latitude: position.latitude,
+        // longitude: position.longitude,
+        latitude: 0.0,
+        longitude: 0.0,
       );
       // Insert the GuardianFB object into Firestore with user.uid as document ID
       await FirebaseFirestore.instance
@@ -201,21 +207,20 @@ class _ParentRegistrationClassState extends State<ParentRegistrationClass> {
           .doc(firebaseUserId) // Use user.uid as the document ID
           .set(parentFB.toJson());
 
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => registrationRoom()));
+      if (mounted) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        customSnackBar(context, "Success", Colors.green);
+      }
     } catch (error) {
-      showSnackBar("Error occurred: $error", context);
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  void navigatetologin() {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => noSummaryClass(),
-    ));
+      if (mounted) {
+        Navigator.pop(context);
+        customSnackBar(context, "Error occurred: $error", Colors.red);
+      }
+      if (kDebugMode) {
+        print("Error occurred during sign up: $error");
+      }
+    } finally {}
   }
 
   @override
@@ -223,192 +228,161 @@ class _ParentRegistrationClassState extends State<ParentRegistrationClass> {
     return Scaffold(
       backgroundColor: Colors.black38,
       body: SafeArea(
-          child: SingleChildScrollView(
+          child: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.linearTop,
+              AppColors.linearBottom,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        width: double.infinity,
         child: Form(
           key: _formKey,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.Colors.loginGradientStart,
-                  Theme.Colors.loginGradientEnd,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 32),
-            width: double.infinity,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Center(child: Text("Parent Registration")),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: Stack(children: [
-                      _image != null
-                          ? CircleAvatar(
-                              radius: 64, backgroundImage: MemoryImage(_image!))
-                          : const CircleAvatar(
-                              radius: 64,
-                              backgroundImage: NetworkImage(
-                                  "https://t3.ftcdn.net/jpg/03/46/83/96/240_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg"),
-                            ),
-                      Positioned(
-                          bottom: -10,
-                          left: 80,
-                          child: IconButton(
-                            onPressed: () {
-                              selectImage();
-                              // selectImageWeb();
-                            },
-                            icon: Icon(
-                              Icons.add_a_photo,
-                              size: 25,
-                            ),
-                          ))
-                    ]),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text(
+                      "Parent Registration",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 18),
-                  TextFieldInput(
-                      textEditingController: _firstNameController,
-                      hintText: "first name",
-                      textInputType: TextInputType.text,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your first name';
-                        }
-                        return null; // Return null if validation passes
-                      },
-                      onTap: () {
-                        print("first name is tapped");
-                      }),
-                  const SizedBox(height: 18),
-                  TextFieldInput(
-                    textEditingController: _lastNameController,
-                    hintText: "last name",
-                    // textInputType: TextInputType.visiblePassword,
-                    textInputType: TextInputType.text,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null; // Return null if validation passes
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  TextFieldInput(
-                    textEditingController: _emailController,
-                    hintText: "email",
-                    // textInputType: TextInputType.visiblePassword,
-                    textInputType: TextInputType.text,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null; // Return null if validation passes
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  TextFieldInput(
-                    textEditingController: _phoneController,
-                    hintText: "phone",
-                    // textInputType: TextInputType.visiblePassword,
-                    textInputType: TextInputType.text,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null; // Return null if validation passes
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  TextFieldInput(
-                    textEditingController: _passwordController,
-                    hintText: "password",
-                    // textInputType: TextInputType.visiblePassword,
-                    textInputType: TextInputType.text,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null; // Return null if validation passes
-                    },
-                    ispass: true,
-                  ),
-                  const SizedBox(height: 18),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: isLoading
-                        ? Container(
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text("Waiting "),
-                                  SizedBox(width: 2),
-                                  SpinKitWave(color: Colors.white, size: 30),
-                                  // Add more widgets if needed
-                                ],
-                              ),
-                            ),
-                          )
-                        : Container(
-                            //margin: EdgeInsets.only(top: 10.0),
-                            decoration: new BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5.0)),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: Theme.Colors.loginGradientStart,
-                                  offset: Offset(1.0, 6.0),
-                                  blurRadius: 20.0,
-                                ),
-                                BoxShadow(
-                                  color: Theme.Colors.loginGradientEnd,
-                                  offset: Offset(1.0, 6.0),
-                                  blurRadius: 20.0,
-                                ),
-                              ],
-                              gradient: new LinearGradient(
-                                  colors: [
-                                    Theme.Colors.loginGradientEnd,
-                                    Theme.Colors.loginGradientStart
-                                  ],
-                                  begin: const FractionalOffset(0.2, 0.2),
-                                  end: const FractionalOffset(1.0, 1.0),
-                                  stops: [0.0, 1.0],
-                                  tileMode: TileMode.clamp),
-                            ),
-                            child: MaterialButton(
-                                highlightColor: Colors.transparent,
-                                splashColor: Theme.Colors.loginGradientEnd,
-                                //shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 42.0),
-                                  child: Text(
-                                    "SIGN UP",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 25.0,
-                                        fontFamily: "WorkSansBold"),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    print("Enock");
-                                    singUpUser();
-                                  }
-
-                                }),
+                ),
+                Center(
+                  child: Stack(children: [
+                    _image != null
+                        ? CircleAvatar(
+                            radius: 64, backgroundImage: MemoryImage(_image!))
+                        : const CircleAvatar(
+                            radius: 64,
+                            backgroundImage: NetworkImage(
+                                "https://t3.ftcdn.net/jpg/03/46/83/96/240_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg"),
                           ),
-                  ),
-                ],
-              ),
+                    Positioned(
+                        bottom: -10,
+                        left: 80,
+                        child: IconButton(
+                          onPressed: () {
+                            selectImage();
+                            // selectImageWeb();
+                          },
+                          icon: const Icon(
+                            Icons.add_a_photo,
+                            size: 25,
+                          ),
+                        ))
+                  ]),
+                ),
+                const SizedBox(height: 18),
+                TextFieldInput(
+                    textEditingController: _firstNameController,
+                    hintText: "first name",
+                    textInputType: TextInputType.text,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter parent first name';
+                      }
+                      return null; // Return null if validation passes
+                    },
+                    onTap: () {
+                      if (kDebugMode) {
+                        print("first name is tapped");
+                      }
+                    }),
+                const SizedBox(height: 18),
+                TextFieldInput(
+                  textEditingController: _lastNameController,
+                  hintText: "last name",
+                  // textInputType: TextInputType.visiblePassword,
+                  textInputType: TextInputType.text,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter parent last name';
+                    }
+                    return null; // Return null if validation passes
+                  },
+                ),
+                const SizedBox(height: 18),
+                TextFieldInput(
+                  textEditingController: _emailController,
+                  hintText: "email",
+                  // textInputType: TextInputType.visiblePassword,
+                  textInputType: TextInputType.text,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter parent email';
+                    } else {
+                      return InputValidation.email(value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 18),
+                TextFieldInput(
+                  textEditingController: _phoneController,
+                  hintText: "phone",
+                  // textInputType: TextInputType.visiblePassword,
+                  textInputType: TextInputType.text,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter parent phone number';
+                    } else {
+                      return InputValidation.phone(value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 18),
+                // TextFieldInput(
+                //   textEditingController: _passwordController,
+                //   hintText: "password",
+                //   // textInputType: TextInputType.visiblePassword,
+                //   textInputType: TextInputType.text,
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return 'Please enter your first name';
+                //     }
+                //     return null; // Return null if validation passes
+                //   },
+                //   ispass: true,
+                // ),
+                // const SizedBox(height: 18),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: isLoading
+                      ? const Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text("Waiting "),
+                              SizedBox(width: 2),
+                              SpinKitWave(color: Colors.white, size: 30),
+                              // Add more widgets if needed
+                            ],
+                          ),
+                        )
+                      : CustomMaterialButton(
+                          label: "Register Parent",
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              singUpUser();
+                            }
+                          },
+                        ),
+                ),
+              ],
             ),
           ),
         ),

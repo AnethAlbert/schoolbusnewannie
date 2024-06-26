@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:newschoolbusapp/core/utils/app_colors.dart';
 
 class DropDownButton extends StatefulWidget {
   final List<String> items;
@@ -7,11 +8,11 @@ class DropDownButton extends StatefulWidget {
   final void Function(String?) onChanged;
 
   const DropDownButton({
-    Key? key,
+    super.key,
     required this.items,
     required this.selectedValue,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<DropDownButton> createState() => _DropDownButtonState();
@@ -22,6 +23,38 @@ class _DropDownButtonState extends State<DropDownButton> {
   Widget build(BuildContext context) {
     return DropdownButtonHideUnderline(
       child: DropdownButton2<String>(
+        style: const TextStyle(
+          color: Colors.black,
+        ),
+        customButton: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.85),
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 15.0),
+                child: Text(
+                  widget.selectedValue ?? "Select Item",
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.arrow_drop_down,
+                color: Colors.black54,
+                size: 30,
+              ),
+            ],
+          ),
+        ),
+        barrierColor: Colors.black.withOpacity(0.4),
         isExpanded: true,
         hint: const Row(
           children: [
@@ -67,30 +100,31 @@ class _DropDownButtonState extends State<DropDownButton> {
           width: 160,
           padding: const EdgeInsets.only(left: 14, right: 14),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(4),
             border: Border.all(
-              color: Colors.black26,
+              color: Colors.grey,
             ),
-            color: Colors.white10,
+            color: Colors.white.withOpacity(0.9),
           ),
-          elevation: 2,
+          elevation: 0,
         ),
         iconStyleData: const IconStyleData(
           icon: Icon(
-            Icons.arrow_forward_ios_outlined,
+            Icons.arrow_drop_down,
+            color: Colors.black54,
+            size: 30,
           ),
-          iconSize: 14,
+          iconSize: 18,
           iconEnabledColor: Colors.yellow,
           iconDisabledColor: Colors.grey,
         ),
         dropdownStyleData: DropdownStyleData(
           maxHeight: 200,
-          width: 200,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            color: Colors.black38,
+            color: AppColors.linearMiddle,
           ),
-          offset: const Offset(-20, 0),
+          offset: const Offset(0, -8),
           scrollbarTheme: ScrollbarThemeData(
             radius: const Radius.circular(40),
             thickness: MaterialStateProperty.all(6),

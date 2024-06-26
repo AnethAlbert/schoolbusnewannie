@@ -1,32 +1,17 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:newschoolbusapp/services/Gurdian_apiService.dart';
+import 'package:newschoolbusapp/core/utils/app_colors.dart';
 import 'package:newschoolbusapp/style/theme.dart' as Theme;
-import 'package:newschoolbusapp/ui/Report/WeekReport.dart';
-import 'package:newschoolbusapp/ui/Report/mouthReport.dart';
-import 'package:newschoolbusapp/ui/bucket/bucketnew.dart';
-import 'package:newschoolbusapp/ui/bucket01/bucket01Class.dart';
-import 'package:newschoolbusapp/ui/bucket02/bucket02Class.dart';
-import 'package:newschoolbusapp/ui/gurdian/registrationRoom.dart';
-import 'package:newschoolbusapp/ui/live/mapPage.dart';
-import 'package:newschoolbusapp/ui/profiles/guedianProfile.dart';
-import 'package:newschoolbusapp/ui/profiles/parentProfile.dart';
-import 'package:newschoolbusapp/ui/profiles/studentProfile.dart';
-import 'package:newschoolbusapp/ui/registration/gurdianRegistation.dart';
-import 'package:newschoolbusapp/ui/registration/parentRegistration.dart';
-import 'package:newschoolbusapp/ui/registration/studentRegistration.dart';
-import 'package:newschoolbusapp/utils/bubble_indication_painter.dart';
-import 'package:newschoolbusapp/widgets/ParentSeachAutocomplete.dart';
-import 'package:newschoolbusapp/widgets/loading_indicator.dart';
+import 'package:newschoolbusapp/ui/app_root.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../testing/desplayimage from database.dart';
-import 'bucketliveMap03/BucketMap03.dart';
+import '../core/services/Gurdian_apiService.dart';
+import '../core/utils/bubble_indication_painter.dart';
+import '../widgets/custom_loader.dart';
+import '../widgets/loading_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   //LoginPage({required Key key}) : super(key: key);
@@ -67,8 +52,10 @@ class _LoginPageState extends State<LoginPage>
   int? gurdianId;
   String? profilePictureUrl;
 
-
   Future<void> _loginUser() async {
+    //TODO: Put Login Credentials here
+    // Mimi@gmail.com
+    // Password: test123
     String email = loginEmailController.text.trim();
     String password = loginPasswordController.text.trim();
 
@@ -77,6 +64,7 @@ class _LoginPageState extends State<LoginPage>
       return;
     }
 
+    loadingDialog(context);
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -136,57 +124,72 @@ class _LoginPageState extends State<LoginPage>
               'Digital Fingerprint Prefference: ${prefs.getString('pref_digitalfingerprint')}');
 
           // Navigate to the desired screen or perform other actions
-          Navigator.push(
-            context,
-            MaterialPageRoute(
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
                 builder: (context) =>
                     //  noSummaryClass(),
-                    registrationRoom()),
-          );
+                    const AppRoot(),
+              ),
+            );
+          }
         } else {
           // Handle guardian data not found
+          if (mounted) {
+            Navigator.pop(context);
+          }
           print('Guardian data not found for User ID: ${user.uid}');
         }
       } else {
         // Handle login failure
+        if (mounted) {
+          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Login Failed'),
+                content:
+                    const Text('Invalid email or password. Please try again.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+
+        print('Login failed');
+      }
+    } catch (e) {
+      // Handle login errors
+      if (mounted) {
+        Navigator.pop(context);
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Login Failed'),
-              content: Text('Invalid email or password. Please try again.'),
+              title: const Text('Login Error'),
+              content: Text('Login error: $e'),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text('OK'),
+                  child: const Text('OK'),
                 ),
               ],
             );
           },
         );
-        print('Login failed');
       }
-    } catch (e) {
-      // Handle login errors
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Login Error'),
-            content: Text('An error occurred during login. Please try again.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+
       print('Login error: $e');
     }
   }
@@ -221,14 +224,14 @@ class _LoginPageState extends State<LoginPage>
               // ? MediaQuery.of(context).size.height
               // : 775.0
               ,
-              decoration: new BoxDecoration(
-                gradient: new LinearGradient(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
                     colors: [
-                      Theme.Colors.loginGradientStart,
-                      Theme.Colors.loginGradientEnd
+                      AppColors.linearTop,
+                      AppColors.linearBottom,
                     ],
-                    begin: const FractionalOffset(0.0, 0.0),
-                    end: const FractionalOffset(1.0, 1.0),
+                    begin: FractionalOffset(0.0, 0.0),
+                    end: FractionalOffset(1.0, 1.0),
                     stops: [0.0, 1.0],
                     tileMode: TileMode.clamp),
               ),
@@ -236,7 +239,7 @@ class _LoginPageState extends State<LoginPage>
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
                   Padding(
-                      padding: EdgeInsets.only(top: 40.0),
+                      padding: const EdgeInsets.only(top: 40.0),
                       child: Image.asset(
                         'assets/images/bus.png',
                         width: 250,
@@ -244,7 +247,7 @@ class _LoginPageState extends State<LoginPage>
                         fit: BoxFit.fitWidth,
                       )),
                   Padding(
-                    padding: EdgeInsets.only(top: 1.0),
+                    padding: const EdgeInsets.only(top: 1.0),
                     child: _buildMenuBar(context),
                   ),
                   Expanded(
@@ -314,7 +317,7 @@ class _LoginPageState extends State<LoginPage>
       content: Text(
         value,
         textAlign: TextAlign.center,
-        style: TextStyle(
+        style: const TextStyle(
             color: Colors.white,
             fontSize: 16.0,
             fontFamily: "WorkSansSemiBold"),
@@ -328,9 +331,8 @@ class _LoginPageState extends State<LoginPage>
     return Container(
       width: 300.0,
       height: 50.0,
-      decoration: BoxDecoration(
-        color: Color(0x552B2B2B),
-        borderRadius: BorderRadius.all(Radius.circular(25.0)),
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(25.0)),
       ),
       child: CustomPaint(
         painter: TabIndicationPainter(pageController: _pageController),
@@ -363,7 +365,7 @@ class _LoginPageState extends State<LoginPage>
 
   Widget _buildSignIn(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 23.0),
+      padding: const EdgeInsets.only(top: 23.0),
       child: Column(
         children: <Widget>[
           Stack(
@@ -382,17 +384,17 @@ class _LoginPageState extends State<LoginPage>
                   child: Column(
                     children: <Widget>[
                       Padding(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
                           focusNode: myFocusNodeEmailLogin,
                           controller: loginEmailController,
                           keyboardType: TextInputType.emailAddress,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontFamily: "WorkSansSemiBold",
                               fontSize: 16.0,
                               color: Colors.black),
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             border: InputBorder.none,
                             icon: Icon(
                               FontAwesomeIcons.envelope,
@@ -411,25 +413,25 @@ class _LoginPageState extends State<LoginPage>
                         color: Colors.grey[400],
                       ),
                       Padding(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                             top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
                         child: TextField(
                           focusNode: myFocusNodePasswordLogin,
                           controller: loginPasswordController,
                           obscureText: _obscureTextLogin,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontFamily: "WorkSansSemiBold",
                               fontSize: 16.0,
                               color: Colors.black),
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            icon: Icon(
+                            icon: const Icon(
                               FontAwesomeIcons.lock,
                               size: 22.0,
                               color: Colors.black,
                             ),
                             hintText: "Password",
-                            hintStyle: TextStyle(
+                            hintStyle: const TextStyle(
                                 fontFamily: "WorkSansSemiBold", fontSize: 17.0),
                             suffixIcon: GestureDetector(
                               onTap: _toggleLogin,
@@ -449,28 +451,26 @@ class _LoginPageState extends State<LoginPage>
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(top: 170.0),
-                decoration: new BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                margin: const EdgeInsets.only(top: 170.0),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(5.0),
+                  ),
                   boxShadow: <BoxShadow>[
                     BoxShadow(
-                      color: Theme.Colors.loginGradientStart,
-                      offset: Offset(1.0, 6.0),
-                      blurRadius: 20.0,
-                    ),
-                    BoxShadow(
-                      color: Theme.Colors.loginGradientEnd,
-                      offset: Offset(1.0, 6.0),
+                      color: AppColors.blackColor.withOpacity(0.7),
+                      offset: const Offset(1.0, 6.0),
                       blurRadius: 20.0,
                     ),
                   ],
-                  gradient: new LinearGradient(
+                  gradient: const LinearGradient(
                       colors: [
-                        Theme.Colors.loginGradientEnd,
-                        Theme.Colors.loginGradientStart
+                        AppColors.linearTop,
+                        AppColors.linearMiddle,
+                        // AppColors.linearBottom,
                       ],
-                      begin: const FractionalOffset(0.2, 0.2),
-                      end: const FractionalOffset(1.0, 1.0),
+                      begin: FractionalOffset(0.2, 0.2),
+                      end: FractionalOffset(1.0, 1.0),
                       stops: [0.0, 1.0],
                       tileMode: TileMode.clamp),
                 ),
@@ -478,14 +478,14 @@ class _LoginPageState extends State<LoginPage>
                   highlightColor: Colors.transparent,
                   splashColor: Theme.Colors.loginGradientEnd,
                   //shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 42.0),
+                  child: const Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 50.0),
                     child: Text(
                       "LOGIN",
                       style: TextStyle(
                           color: Colors.white,
-                          fontSize: 25.0,
+                          fontSize: 20.0,
                           fontFamily: "WorkSansBold"),
                     ),
                   ),

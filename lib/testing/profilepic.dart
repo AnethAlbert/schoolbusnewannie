@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:newschoolbusapp/models/fireBaseModels/parentfb.dart';
+
+import '../core/models/fireBaseModels/parentfb.dart';
 
 class ProfilePictureWidget extends StatefulWidget {
   @override
@@ -15,7 +17,7 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
   Future<void> fetchParentss() async {
     try {
       final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-      await FirebaseFirestore.instance.collection('parents').get();
+          await FirebaseFirestore.instance.collection('parents').get();
 
       List<ParentFB> fetchedParents = querySnapshot.docs
           .map<ParentFB>((doc) => ParentFB.fromFirestore(doc))
@@ -52,14 +54,12 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
     return Center(
       child: profilePicture != null && profilePicture!.isNotEmpty
           ? CircleAvatar(
-        radius: 30,
-        backgroundImage: MemoryImage(base64Decode(profilePicture!)),
-      )
+              radius: 30,
+              backgroundImage: MemoryImage(base64Decode(profilePicture!)),
+            )
           : Text('No image selected'),
     );
   }
-
-
 
   // Widget showImage(Uint8List? imageData) {
   //   if (imageData != null && imageData.isNotEmpty) {
@@ -84,7 +84,6 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
   //   }
   // }
 
-
   @override
   void initState() {
     super.initState();
@@ -94,12 +93,13 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:ListView.builder(
+      body: ListView.builder(
         itemCount: parentss.length,
         itemBuilder: (context, index) {
           return ListTile(
             leading: showImage(),
-            title: Text('${parentss[index]['fname']} ${parentss[index]['lname']}'),
+            title:
+                Text('${parentss[index]['fname']} ${parentss[index]['lname']}'),
             subtitle: Text('Email: ${parentss[index]['email']}'),
             // Add more details as needed
           );
