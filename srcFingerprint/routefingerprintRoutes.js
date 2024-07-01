@@ -72,7 +72,7 @@ router.post('/delete', async (req, res) => {
 router.post('/emptyDatabase', (req, res) => {
   // Send command to Arduino for fingerprint detection
     sendCommandEmptyFingerprint('4'); 
-  res.send('Now finger print sensor Database is Empty !!!');
+  res.send('Now finger print sensor Database is Empty!!!');
 });
 
 
