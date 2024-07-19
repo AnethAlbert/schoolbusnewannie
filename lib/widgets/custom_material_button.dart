@@ -5,6 +5,8 @@ import 'package:newschoolbusapp/style/theme.dart' as Theme;
 import '../core/utils/app_colors.dart';
 
 class CustomMaterialButton extends StatelessWidget {
+  final Color? backgroundColor;
+  final Color? textColor;
   final String label;
   final Function() onPressed;
 
@@ -12,6 +14,8 @@ class CustomMaterialButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
+    this.backgroundColor,
+    this.textColor,
   });
 
   @override
@@ -28,14 +32,14 @@ class CustomMaterialButton extends StatelessWidget {
             blurRadius: 20.0,
           ),
         ],
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
             colors: [
-              AppColors.linearTop,
-              AppColors.linearMiddle,
+              backgroundColor ?? AppColors.linearTop,
+              backgroundColor ?? AppColors.linearMiddle,
             ],
-            begin: FractionalOffset(0.2, 0.2),
-            end: FractionalOffset(1.0, 1.0),
-            stops: [0.0, 1.0],
+            begin: const FractionalOffset(0.2, 0.2),
+            end: const FractionalOffset(1.0, 1.0),
+            stops: const [0.0, 1.0],
             tileMode: TileMode.clamp),
       ),
       child: MaterialButton(
@@ -46,8 +50,8 @@ class CustomMaterialButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 42.0),
           child: Text(
             label,
-            style: const TextStyle(
-                color: Colors.white,
+            style: TextStyle(
+                color: textColor ?? Colors.white,
                 fontSize: 16.0,
                 fontFamily: "WorkSansBold"),
           ),

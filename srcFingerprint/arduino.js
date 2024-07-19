@@ -122,7 +122,6 @@ async function sendCommandEnrollFingerprint(command, fingerPrintId) {
 
 
 
-
 function sendId(fingerPrintId) {
     // Implement the logic to send the fingerprint ID to Arduino
     port.write(fingerPrintId);
@@ -211,5 +210,15 @@ function sendCommandEmptyFingerprint(command) {
 
 ///**********END OF EMPTY FINGERPRINT METHOD */**************************************************** */
 
-module.exports = { sendCommandDetectFingerprint, sendCommandEnrollFingerprint, sendId ,sendCommandDeleteFingerprint,sendCommandEmptyFingerprint };
+
+
+///**********COMMAND FOR SEVO MOTOR */**************************************************** */
+function sendCommandforServoMotor(command) {
+    port.write(command);
+}
+
+///**********END SERVO MOTOR COMMAND */**************************************************** */
+
+
+module.exports = { sendCommandDetectFingerprint, sendCommandEnrollFingerprint, sendId ,sendCommandDeleteFingerprint,sendCommandEmptyFingerprint, sendCommandforServoMotor };
 

@@ -441,6 +441,24 @@ class _TripPageState extends State<TripPage> {
                         );
                       },
                     ),
+                    CustomMaterialButton(
+                      backgroundColor: Colors.green,
+                      label: "Open Door",
+                      onPressed: () async {
+                        tripController.openCloseDoor("u");
+                        await Future.delayed(
+                          const Duration(seconds: 8),
+                        );
+                        tripController.openCloseDoor("l");
+                      },
+                    ),
+                    CustomMaterialButton(
+                      backgroundColor: Colors.red,
+                      label: "Close Door",
+                      onPressed: () {
+                        tripController.openCloseDoor("l");
+                      },
+                    ),
                   ],
                 ),
               ),

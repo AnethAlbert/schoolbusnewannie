@@ -23,6 +23,12 @@ class _FingerPrintAlertDialogButtonStudentState
   bool isLoading = false;
 
   @override
+  void initState() {
+    _handleButtonTap();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,

@@ -1,5 +1,6 @@
 
 #include <Adafruit_Fingerprint.h>
+#include <Servo.h>
 
 #if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
 SoftwareSerial mySerial(2, 3); // SoftwareSerial for UNO and others without hardware serial
@@ -12,8 +13,22 @@ SoftwareSerial mySerial(2, 3); // SoftwareSerial for UNO and others without hard
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 uint8_t id;
 
+// SERVO MOTOR
+Servo myServo;
+int ledRed = 10;
+int ledGreen = 11;
+int ledBlue = 12;
+
 void setup() {
   Serial.begin(9600);
+  myServo.attach(9);
+
+  pinMode(ledRed, OUTPUT);
+  pinMode(ledGreen, OUTPUT);
+  pinMode(ledBlue, OUTPUT);
+
+  myServo.write(0);
+
   while (!Serial);
   delay(100);
   Serial.println("\n\nAdafruit Fingerprint sensor combined sketch");
@@ -38,6 +53,7 @@ void setup() {
   Serial.print(F("Baud rate: ")); Serial.println(finger.baud_rate);
 }
 
+
 uint8_t readnumber(void) {
   uint8_t num = 0;
   while (num == 0) {
@@ -46,6 +62,7 @@ uint8_t readnumber(void) {
   }
   return num;
 }
+
 
 void loop() {
   Serial.println("Press 1 for fingerprint detection, 2 for enrollment, 3 for deletion, 4 to empty fingerprint database:");
@@ -68,42 +85,31 @@ void loop() {
     case '4':
       emptyFingerprintDatabase();
       break;
+      case 'u':
+      myServo.write(90);
+      setColor(0, 255, 0); // Green
+      break;
+      case 'l':
+      myServo.write(0);
+      setColor(255 ,0, 0); // Red
+      break;
     default:
       Serial.println("Invalid selection");
       break;
   }
 }
 
-// bool fingerprintDetection() {
-//   Serial.println("Fingerprint detection mode");
-//   while (true) {
-//     uint8_t result = getFingerprintID();
-//     if (result == FINGERPRINT_OK) {
-//       Serial.print("Fingerprint detected! ID:"); 
-//       Serial.println(finger.fingerID);
-   
-//       return true; // Return true if fingerprint detected
-//     } else if (result == FINGERPRINT_NOFINGER) {
-      
-//       // Serial.println("No finger detected");
-//     } else {
-//       Serial.println("Error detecting fingerprint");
-//     }
-//     delay(50);
-//   }
-//   return false; // Return false if fingerprint not detected
-// }
 
 bool fingerprintDetection() {
   Serial.println("Fingerprint detection mode");
   unsigned long startTime = millis(); // Record the start time
-  
+
   while (millis() - startTime < 5000) { // Timeout duration of 5000 ms
     uint8_t result = getFingerprintID();
     if (result == FINGERPRINT_OK) {
-      Serial.print("Fingerprint detected! ID:"); 
+      Serial.print("Fingerprint detected! ID:");
       Serial.println(finger.fingerID);
-   
+
       return true; // Return true if fingerprint detected
     } else if (result == FINGERPRINT_NOFINGER) {
       // No finger detected, continue waiting
@@ -113,7 +119,7 @@ bool fingerprintDetection() {
     }
     delay(50);
   }
-  
+
   // Timeout occurred, no fingerprint detected
   Serial.println("Fingerprint detection timeout");
   return false;
@@ -187,6 +193,7 @@ uint8_t getFingerprintID() {
   return FINGERPRINT_NOTFOUND;
 }
 
+
 void fingerprintEnrollment() {
   Serial.println("Fingerprint enrollment mode");
   Serial.println("Please type in the ID # (from 1 to 127) you want to save this finger as...");
@@ -200,6 +207,7 @@ void fingerprintEnrollment() {
 
   while (! getFingerprintEnroll() );
 }
+
 
 uint8_t getFingerprintEnroll() {
   int p = -1;
@@ -253,8 +261,6 @@ uint8_t getFingerprintEnroll() {
 }
 
 
-
-
 void fingerprintDeletion() {
   Serial.println("Fingerprint deletion mode");
   Serial.println("Please type in the ID # (from 1 to 127) you want to delete...");
@@ -268,6 +274,7 @@ void fingerprintDeletion() {
 
   deleteFingerprint(id);
 }
+
 
 uint8_t deleteFingerprint(uint8_t id) {
   uint8_t p = -1;
@@ -290,10 +297,18 @@ uint8_t deleteFingerprint(uint8_t id) {
   return p;
 }
 
+
 void emptyFingerprintDatabase() {
   Serial.println("Emptying fingerprint database...");
   finger.emptyDatabase();
   Serial.println("Fingerprint database is now empty");
+}
+
+
+void setColor(int red, int green, int blue){
+  analogWrite(ledRed, red);
+  analogWrite(ledGreen, green);
+  analogWrite(ledBlue, blue);
 }
 
 

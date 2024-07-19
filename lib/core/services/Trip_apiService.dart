@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:newschoolbusapp/core/models/student_attendance_model.dart';
@@ -305,7 +306,6 @@ class TripApiService {
   }
 
 //************************************DELETE*******************************//
-
   Future<void> removeTripRecordById(int id) async {
     final String apiUrl =
         '/api/v1/trip_record/$id'; // Include the ID in the URL
@@ -329,7 +329,6 @@ class TripApiService {
   }
 
 //********************************UPDATE*********************************//
-
   Future<void> updateTripRecordById(int Tripid, int gurdianid, context) async {
     final String apiUrlUpdate =
         '/api/v1/trip_record/$Tripid'; // Include the ID in the URL
@@ -350,6 +349,33 @@ class TripApiService {
       }
     } catch (error) {
       print('Error: $error');
+    }
+  }
+
+  //********************************DOOR*********************************//
+  Future<void> openCloseDoor(String command) async {
+    const String apiUrl = '/api/v1/servo-motor/send-command';
+    try {
+      final response = await http.post(
+        Uri.parse(url + apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'command': command}),
+      );
+
+      print('RESPONSE: ${response.body}');
+      print('CODE: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Door command successfully');
+        }
+      } else {
+        throw Exception('Unexpected error occurred');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error: $error');
+      }
     }
   }
 }

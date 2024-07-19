@@ -314,6 +314,11 @@ class _ProfilePicDialogBoxStudentState
 
       Navigator.pop(context);
       customSnackBar(context, 'Success', Colors.green);
+      apiService.openCloseDoor('u');
+      await Future.delayed(
+        const Duration(seconds: 8),
+      );
+      apiService.openCloseDoor("l");
     } catch (e) {
       if (kDebugMode) {
         print('Error updating trip record: $e');
@@ -334,6 +339,11 @@ class _ProfilePicDialogBoxStudentState
     Navigator.pop(context);
     if (result) {
       customSnackBar(context, "Success", Colors.green);
+      apiService.openCloseDoor('u');
+      await Future.delayed(
+        const Duration(seconds: 8),
+      );
+      apiService.openCloseDoor("l");
     } else {
       customSnackBar(context, "Failed: An error occurred.", Colors.red);
     }

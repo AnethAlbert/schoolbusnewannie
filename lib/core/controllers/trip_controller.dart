@@ -34,4 +34,8 @@ class TripController {
   Future<bool> dropStudent(int tripId, int studentId) async {
     return await tripApiService.dropStudent(tripId, studentId);
   }
+
+  Future<void> openCloseDoor(String command) async {
+    return tripApiService.openCloseDoor(command);
+  }
 }

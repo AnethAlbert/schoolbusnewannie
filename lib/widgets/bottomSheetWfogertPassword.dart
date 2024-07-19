@@ -6,8 +6,8 @@ class ForgetPasswordBtnWidget extends StatelessWidget {
     required this.title,
     required this.subTitle,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final IconData btnIcon;
   final String title, subTitle;
@@ -30,8 +30,8 @@ class ForgetPasswordBtnWidget extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.headline6),
-                Text(subTitle, style: Theme.of(context).textTheme.bodyText2),
+                Text(title, style: Theme.of(context).textTheme.bodySmall),
+                Text(subTitle, style: Theme.of(context).textTheme.bodyMedium),
               ],
             )
           ],
