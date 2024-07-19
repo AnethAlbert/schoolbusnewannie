@@ -2,7 +2,24 @@
 const pool = require('../../db');
 const queries = require('./queries');
 const mailService = require('../services/mail_service');
-const smsService = require('../services/sms_service');
+const axios = require('axios');
+
+
+async function sendSmsNotification(phoneNumber, message) {
+    try {
+        const response = await axios.post('https://us-central1-my-luggage-6c37b.cloudfunctions.net/sendCustomMessage', {
+            data: {
+                phoneNumber,
+                message
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error sending SMS:', error);
+        throw new Error('Failed to send SMS');
+    }
+}
+
 
 
 const sendMessageToParents = (req, res) => {
@@ -22,7 +39,7 @@ const sendMessageToParents = (req, res) => {
 
         results.forEach(parent => {
             mailService.sendEmail(parent.email, subject,  message);
-            smsService.sendSms(parent.phone, message);
+            sendSmsNotification(parent.phone, message);
         });
         res.status(200).json({ success: true, message: 'Messages sent to all parents for this trip.' });
     });

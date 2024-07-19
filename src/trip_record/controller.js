@@ -2,7 +2,23 @@
 const pool = require('../../db');
 const queries = require('./queries');
 const emailService = require("../services/mail_service");
-const smsService = require("../services/sms_service");
+const axios = require('axios');
+
+
+async function sendSmsNotification(phoneNumber, message) {
+  try {
+      const response = await axios.post('https://us-central1-my-luggage-6c37b.cloudfunctions.net/sendCustomMessage', {
+          data: {
+              phoneNumber,
+              message
+          }
+      });
+      return response.data;
+  } catch (error) {
+      console.error('Error sending SMS:', error);
+      throw new Error('Failed to send SMS');
+  }
+}
 
 
 // Send Notifications to Parent
@@ -18,7 +34,7 @@ function sendNotifications(student_id) {
           console.log('Student Info:', studentInfoResults[0]);
 
           // Retrieve parent info
-          pool.query(queries.getParentInfo, [student_id], (error, parentResults) => {
+          pool.query(queries.getParentInfo, [student_id], async (error, parentResults) => {
               if (error) {
                   console.error(error);
                   return reject({ status: 500, json: { success: false, message: 'Internal server error' } });
@@ -42,7 +58,7 @@ function sendNotifications(student_id) {
               emailService.sendEmail(parentEmail, "Student Arrived Confirmation.", message);
 
               // Send SMS
-              smsService.sendSms(parentPhone, message);
+              await sendSmsNotification(parentPhone, message);
 
               // Prepare response
               const response = {
